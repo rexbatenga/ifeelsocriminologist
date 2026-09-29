@@ -936,16 +936,38 @@
             return scored.slice(0, limit).map(x => x.p);
         }
 
-        async function callGemini(systemText, contents) {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${getGeminiKey()}`;
-            const base = { systemInstruction: { parts: [{ text: systemText }] }, contents };
-            for (const tools of [[{ google_search: {} }], undefined]) {
-                try {
-                    const res = await fetch(url, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(tools ? { ...base, tools } : base) });
-                    const data = await res.json();
-                    const text = (data.candidates?.[0]?.content?.parts || []).map(p => p.text || '').join('').trim();
-                    if (text) return text;
-                } catch (e) {}
+        async function callGemini(systemText, contents, opts = {}) {
+            const useSearch = opts.search !== false;
+            const key = getGeminiKey();
+            const studio = m => `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`;
+            const vertex = m => `https://aiplatform.googleapis.com/v1/publishers/google/models/${m}:generateContent`;
+            window.lastGeminiError = "";
+            // AQ. auth keys are the Gemini API's current key type: send them in the x-goog-api-key header
+            // (never in both header and URL). Vertex express endpoint is kept only as a last fallback.
+            const models = ["gemini-3.5-flash", "gemini-3-flash-preview", "gemini-2.5-flash"];
+            const attempts = models.map(m => ({ url: studio(m) }));
+            attempts.push({ url: vertex(models[0]) });
+            const headers = { 'Content-Type': 'application/json', 'x-goog-api-key': key };
+            for (const a of attempts) {
+                const variants = [];
+                if (useSearch && !opts.json) variants.push({ tools: [{ google_search: {} }] });
+                variants.push({});
+                for (const v of variants) {
+                    const body = { systemInstruction: { parts: [{ text: systemText }] }, contents, ...v };
+                    if (opts.json) body.generationConfig = { responseMimeType: "application/json", temperature: 0.8 };
+                    try {
+                        const res = await fetch(a.url, { method: 'POST', headers, body: JSON.stringify(body) });
+                        const data = await res.json().catch(() => ({}));
+                        const text = (data.candidates?.[0]?.content?.parts || []).map(p => p.text || '').join('').trim();
+                        if (text) return text;
+                        window.lastGeminiError = data.error?.message || `HTTP ${res.status}`;
+                        if (res.status === 401 || res.status === 403 || res.status === 429) return null; // key/quota problem: other models won't help
+                        if (res.status !== 400) break;
+                    } catch (e) {
+                        window.lastGeminiError = e.message || "Network error";
+                        break;
+                    }
+                }
             }
             return null;
         }
@@ -986,11 +1008,9 @@ ${material}`;
 
             const lastQ = chatHistory.length ? chatHistory[chatHistory.length - 2]?.parts[0].text : "";
             const passages = retrievePassages(q + " " + (lastQ || ""));
-            const reply = await callGemini(buildSystemPrompt(passages, true), [...chatHistory, { role: 'user', parts: [{ text: q }] }])
-                || "### Short Answer\nI couldn't reach the AI just now. Please try again in a moment.";
-            if (!reply.startsWith("### Short Answer\nI couldn't")) {
-                chatHistory.push({ role: 'user', parts: [{ text: q }] }, { role: 'model', parts: [{ text: reply }] });
-            }
+            const got = await callGemini(buildSystemPrompt(passages, true), [...chatHistory, { role: 'user', parts: [{ text: q }] }]);
+            const reply = got || `### Short Answer\nI couldn't reach the AI just now.\n\n- **Reason:** ${window.lastGeminiError || 'unknown'}`;
+            if (got) chatHistory.push({ role: 'user', parts: [{ text: q }] }, { role: 'model', parts: [{ text: got }] });
             document.getElementById(id).innerHTML = mdToHtml(reply);
             box.scrollTop = box.scrollHeight;
         }
@@ -1013,7 +1033,7 @@ ${material}`;
 
             const passages = retrievePassages(query);
             const answer = await callGemini(buildSystemPrompt(passages, false), [{ role: 'user', parts: [{ text: query }] }]);
-            currentAIResponseText = answer || "### Short Answer\nI couldn't reach the AI just now. Please check your connection and try again.";
+            currentAIResponseText = answer || `### Short Answer\nI couldn't reach the AI just now.\n\n- **Reason:** ${window.lastGeminiError || 'unknown'}\n- Open the admin panel and paste a fresh Gemini key (AI Studio → API Keys), then try again.`;
             if (answer) chatHistory = [{ role: 'user', parts: [{ text: query }] }, { role: 'model', parts: [{ text: answer }] }];
 
             aiLoading.classList.add('hidden');
@@ -1055,7 +1075,64 @@ ${material}`;
         }
 
         // --- EXAM ENGINE & REALTIME RESULT TRANSMISSION ---
-        function generateQuiz() {
+        function shuffle(arr) {
+            const a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+            return a;
+        }
+
+        function pickExamPassages(pillar, n) {
+            let pool = buildPassages().filter(p => p.text.length > 400 && (pillar === "ALL" || p.pillar === pillar));
+            if (pillar !== "ALL") return shuffle(pool).slice(0, n);
+            // comprehensive: spread evenly over the pillars that have material
+            const by = {};
+            pool.forEach(p => (by[p.pillar] = by[p.pillar] || []).push(p));
+            const groups = Object.values(by).map(shuffle);
+            const out = [];
+            for (let i = 0; out.length < n && groups.some(g => g.length); i++) {
+                const g = groups[i % groups.length];
+                if (g.length) out.push(g.pop());
+            }
+            return out;
+        }
+
+        async function generateBatch(pillar, count) {
+            const passages = pickExamPassages(pillar, Math.min(10, Math.max(4, count)));
+            if (!passages.length) return [];
+            const material = passages.map((p, i) => `[Excerpt ${i + 1} | pillar ${p.pillar}]\n${p.text}`).join("\n\n");
+            const sys = `You write Philippine Criminology Board Examination multiple-choice questions.
+Write exactly ${count} DIFFERENT questions based on facts, definitions, elements, articles, rules and procedures found in the excerpts below. Each question must:
+- stand on its own (never say "according to the excerpt/passage/text/book"), be clear, and test one specific point;
+- have exactly 4 plausible options with only one correct answer; wrong options must be realistic, not silly;
+- cover different excerpts and different kinds of knowledge (definitions, elements, penalties, procedures, terms);
+- include a one-sentence rationale explaining why the answer is correct.
+Skip trivia about page numbers, headings, or formatting.
+Return ONLY a JSON array: [{"pillar":"CLJ|LEA|CDI|FS|CA|CRIM","question":"...","options":["...","...","...","..."],"correct":0,"rationale":"..."}] where "correct" is the 0-based index of the right option and "pillar" is the pillar of the excerpt used.
+
+Excerpts:
+${material}`;
+            for (let attempt = 0; attempt < 2; attempt++) {
+                const raw = await callGemini(sys, [{ role: 'user', parts: [{ text: `Generate the ${count} questions now.` }] }], { json: true });
+                if (!raw) continue;
+                try {
+                    const arr = JSON.parse(raw.replace(/^```json|^```|```$/gm, '').trim());
+                    const ok = (Array.isArray(arr) ? arr : []).filter(q => q && typeof q.question === 'string' && Array.isArray(q.options) && q.options.length === 4 && Number.isInteger(q.correct) && q.correct >= 0 && q.correct < 4);
+                    if (ok.length) return ok.map(q => {
+                        const order = shuffle([0, 1, 2, 3]);
+                        return {
+                            pillar: ["CLJ","LEA","CDI","FS","CA","CRIM"].includes(q.pillar) ? q.pillar : (pillar === "ALL" ? "CLJ" : pillar),
+                            question: q.question.trim(),
+                            options: order.map(i => String(q.options[i])),
+                            correct: order.indexOf(q.correct),
+                            rationale: q.rationale || ""
+                        };
+                    });
+                } catch (e) { window.lastGeminiError = "Bad quiz format from AI"; }
+            }
+            return [];
+        }
+
+        async function generateQuiz() {
             const usernameInput = document.getElementById('examineeUsername').value.trim();
             if (!usernameInput) {
                 alert("Please enter your Username / Examinee Name before starting.");
@@ -1066,16 +1143,40 @@ ${material}`;
             examineeName = usernameInput;
             const selectedPillar = document.getElementById('quizPillar').value;
             const targetCount = parseInt(document.getElementById('quizLength').value, 10);
+            const btn = document.querySelector('#quizSetupCard button[onclick="generateQuiz()"]');
+            const original = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Building your exam from the books...`;
 
-            let pool = SAMPLE_QUESTION_BANK.filter(q => selectedPillar === "ALL" || q.pillar === selectedPillar);
-            if (pool.length === 0) pool = [...SAMPLE_QUESTION_BANK];
+            // Split into batches of at most 10 questions and generate them in parallel
+            const sizes = [];
+            for (let left = targetCount; left > 0; left -= 10) sizes.push(Math.min(10, left));
+            const batches = await Promise.all(sizes.map(n => generateBatch(selectedPillar, n)));
+            const seen = new Set();
+            let generated = batches.flat().filter(q => { const k = q.question.toLowerCase(); if (seen.has(k)) return false; seen.add(k); return true; });
 
-            quizQuestions = [];
-            while (quizQuestions.length < targetCount) {
-                const item = pool[Math.floor(Math.random() * pool.length)];
-                quizQuestions.push({ ...item });
+            let usedBackup = false;
+            if (generated.length < targetCount) {
+                // top up from the built-in bank without repeating any question
+                let backup = shuffle(SAMPLE_QUESTION_BANK.filter(q => (selectedPillar === "ALL" || q.pillar === selectedPillar) && !seen.has(q.question.toLowerCase())));
+                if (generated.length === 0 && backup.length === 0) backup = shuffle(SAMPLE_QUESTION_BANK);
+                const need = targetCount - generated.length;
+                if (backup.length) usedBackup = true;
+                generated = generated.concat(backup.slice(0, need).map(q => ({ ...q })));
             }
 
+            btn.disabled = false;
+            btn.innerHTML = original;
+
+            if (generated.length === 0) {
+                alert("Couldn't build the exam" + (window.lastGeminiError ? " (" + window.lastGeminiError + ")" : "") + ". Please try again.");
+                return;
+            }
+            if (usedBackup) {
+                alert(`Only ${generated.filter(q => !SAMPLE_QUESTION_BANK.some(b => b.question === q.question)).length} questions could be built from the books` + (window.lastGeminiError ? " (" + window.lastGeminiError + ")" : "") + `. The rest come from the built-in bank, so the exam may be shorter than requested.`);
+            }
+
+            quizQuestions = shuffle(generated).slice(0, targetCount);
             currentQuestionIdx = 0;
             userAnswers = new Array(quizQuestions.length).fill(null);
 
