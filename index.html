@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Institutional Corrections Knowledge Base</title>
+  
+  <!-- PDF.js library for frontend text parsing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 30px 20px;
+      line-height: 1.5;
+    }
+    h1 { margin-bottom: 8px; font-size: 1.8rem; }
+    p.subtitle { color: var(--text-muted); margin-bottom: 24px; font-size: 0.95rem; }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    .card h3 { margin-top: 0; color: #60a5fa; font-size: 1.2rem; }
+    input[type="file"], textarea {
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 12px;
+      border-radius: 6px;
+      box-sizing: border-box;
+      margin-top: 10px;
+    }
+    textarea { height: 100px; resize: vertical; font-family: inherit; }
+    button {
+      background-color: var(--accent);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 12px;
+      transition: background 0.2s;
+    }
+    button:hover { background-color: var(--accent-hover); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .status-box {
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 6px;
+      background: #0f172a;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      white-space: pre-wrap;
+    }
+    .response-area {
+      margin-top: 15px;
+      padding: 16px;
+      background: #0f172a;
+      border-left: 4px solid var(--accent);
+      border-radius: 4px;
+      white-space: pre-wrap;
+    }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      background: var(--border);
+      color: var(--text-muted);
+      border-radius: 12px;
+      font-size: 0.75rem;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Correctional Administration AI System</h1>
+  <p class="subtitle">Target Database Collection: <code>ifscrn</code></p>
+
+  <!-- Section 1: Ingesting PDF into target collection -->
+  <div class="card">
+    <span class="badge">Collection Target: ifscrn</span>
+    <h3>1. Ingest PDF Document into Database</h3>
+    <input type="file" id="pdfFile" accept="application/pdf" />
+    <button id="uploadBtn">Process & Store Book</button>
+    <div id="uploadStatus" class="status-box">Ready for file input...</div>
+  </div>
+
+  <!-- Section 2: Querying target collection -->
+  <div class="card">
+    <span class="badge">Collection Target: ifscrn</span>
+    <h3>2. Query Database Knowledge</h3>
+    <textarea id="userQuery" placeholder="Ask a question (e.g., What are the 7 operating penal facilities under RA 10575?)"></textarea>
+    <button id="askBtn">Submit Query</button>
+    <div id="answerOutput" class="response-area">Answers will appear here...</div>
+  </div>
+
+  <!-- Main ES Module Implementation -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+    import { 
+      getFirestore, 
+      collection, 
+      addDoc, 
+      getDocs, 
+      serverTimestamp 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { GoogleGenAI } from "https://esm.sh/@google/genai";
+
+    // 1. Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCp41jeesWvZdpSrL63WA2ddxK4E9FEjGI",
+      authDomain: "cheemscraft-6113.firebaseapp.com",
+      databaseURL: "https://cheemscraft-6113-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "cheemscraft-6113",
+      storageBucket: "cheemscraft-6113.firebasestorage.app",
+      messagingSenderId: "72934652173",
+      appId: "1:72934652173:web:6c18f2c1f9b8acdbdd9844",
+      measurementId: "G-YXW7R8TVGZ"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const db = getFirestore(app);
+
+    // 2. Google Gemini API setup
+    // Paste your Gemini API Key starting with "AIzaSy..." below:
+    const GEMINI_API_KEY = "PASTE_YOUR_AIzaSy_GEMINI_API_KEY_HERE"; 
+    const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
+
+    // Target database collection
+    const DB_COLLECTION = "ifscrn";
+
+    // Configure PDF.js Worker
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    // Event listeners
+    document.getElementById('uploadBtn').addEventListener('click', processAndUploadPDF);
+    document.getElementById('askBtn').addEventListener('click', askQuestion);
+
+    // ------------------------------------------------------------------
+    // STEP A: Extract, Embed, and Save Book Chunks into "ifscrn"
+    // ------------------------------------------------------------------
+    async function processAndUploadPDF() {
+      const fileInput = document.getElementById('pdfFile');
+      const statusDiv = document.getElementById('uploadStatus');
+      const uploadBtn = document.getElementById('uploadBtn');
+
+      if (!fileInput.files.length) {
+        alert("Please select a PDF file first.");
+        return;
+      }
+
+      try {
+        uploadBtn.disabled = true;
+        statusDiv.innerText = "Status: Reading PDF File...";
+
+        const file = fileInput.files[0];
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+
+        let fullText = "";
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const textContent = await page.getTextContent();
+          const pageText = textContent.items.map(item => item.str).join(" ");
+          fullText += `\n --- Page ${i} --- \n` + pageText;
+          statusDiv.innerText = `Status: Extracting text from page ${i} of ${pdf.numPages}...`;
+        }
+
+        statusDiv.innerText = "Status: Chunking text into searchable segments...";
+        const chunks = chunkText(fullText, 800, 100);
+
+        statusDiv.innerText = `Status: Generating embeddings and writing ${chunks.length} chunks to [${DB_COLLECTION}]...`;
+
+        // Loop chunks and write to Firestore collection 'ifscrn'
+        for (let i = 0; i < chunks.length; i++) {
+          const textChunk = chunks[i];
+
+          // Compute text embedding
+          const embedResult = await ai.models.embedContent({
+            model: "text-embedding-004",
+            contents: textChunk,
+          });
+
+          const embeddingVector = embedResult.embedding.values;
+
+          // Write directly to 'ifscrn' collection
+          await addDoc(collection(db, DB_COLLECTION), {
+            type: "book_chunk",
+            fileName: file.name,
+            chunkIndex: i,
+            text: textChunk,
+            embedding: embeddingVector,
+            createdAt: serverTimestamp()
+          });
+
+          statusDiv.innerText = `Saved chunk ${i + 1} of ${chunks.length} into database collection [${DB_COLLECTION}]...`;
+        }
+
+        statusDiv.innerText = `Success! Book parsed and indexed. All data saved under '${DB_COLLECTION}'.`;
+
+      } catch (err) {
+        console.error(err);
+        statusDiv.innerText = `Error processing document: ${err.message}`;
+      } finally {
+        uploadBtn.disabled = false;
+      }
+    }
+
+    // Helper: Split raw text into chunks
+    function chunkText(text, chunkSize, overlap) {
+      const chunks = [];
+      let index = 0;
+      while (index < text.length) {
+        const chunk = text.substring(index, index + chunkSize);
+        chunks.push(chunk);
+        index += chunkSize - overlap;
+      }
+      return chunks;
+    }
+
+    // ------------------------------------------------------------------
+    // STEP B: Query "ifscrn", Find Relevant Text, and Synthesize Answer
+    // ------------------------------------------------------------------
+    async function askQuestion() {
+      const queryText = document.getElementById('userQuery').value;
+      const answerDiv = document.getElementById('answerOutput');
+      const askBtn = document.getElementById('askBtn');
+
+      if (!queryText.trim()) return;
+
+      try {
+        askBtn.disabled = true;
+        answerDiv.innerText = "Processing vector query...";
+
+        // 1. Vectorize input query
+        const queryEmbedResponse = await ai.models.embedContent({
+          model: "text-embedding-004",
+          contents: queryText,
+        });
+        const queryVector = queryEmbedResponse.embedding.values;
+
+        answerDiv.innerText = `Scanning collection [${DB_COLLECTION}] for matches...`;
+
+        // 2. Fetch all entries from collection 'ifscrn'
+        const snapshot = await getDocs(collection(db, DB_COLLECTION));
+        const scoredDocs = [];
+
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          if (data.type === "book_chunk" && data.embedding) {
+            const similarity = cosineSimilarity(queryVector, data.embedding);
+            scoredDocs.push({ text: data.text, score: similarity });
+          }
+        });
+
+        // 3. Rank top results
+        scoredDocs.sort((a, b) => b.score - a.score);
+        const topMatches = scoredDocs.slice(0, 5).map(doc => doc.text).join("\n\n");
+
+        if (!topMatches) {
+          answerDiv.innerText = `No chunked document data found in [${DB_COLLECTION}]. Please upload a PDF first.`;
+          return;
+        }
+
+        answerDiv.innerText = "Generating response via Gemini...";
+
+        // 4. Submit context to Gemini
+        const prompt = `You are an expert assistant on Correctional Administration. Answer the question using ONLY the provided database excerpts from the book.
+
+Book Excerpts (Collection: ${DB_COLLECTION}):
+${topMatches}
+
+Question: ${queryText}
+Answer:`;
+
+        const genResponse = await ai.models.generateContent({
+          model: "gemini-2.5-flash",
+          contents: prompt,
+        });
+
+        const finalAnswer = genResponse.text;
+        answerDiv.innerText = finalAnswer;
+
+        // 5. Store user interaction back into 'ifscrn'
+        await addDoc(collection(db, DB_COLLECTION), {
+          type: "query_log",
+          query: queryText,
+          response: finalAnswer,
+          createdAt: serverTimestamp()
+        });
+
+      } catch (err) {
+        console.error(err);
+        answerDiv.innerText = `An error occurred: ${err.message}`;
+      } finally {
+        askBtn.disabled = false;
+      }
+    }
+
+    // Cosine similarity comparison helper
+    function cosineSimilarity(vecA, vecB) {
+      let dotProduct = 0;
+      let normA = 0;
+      let normB = 0;
+      for (let i = 0; i < vecA.length; i++) {
+        dotProduct += vecA[i] * vecB[i];
+        normA += vecA[i] * vecA[i];
+        normB += vecB[i] * vecB[i];
+      }
+      return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
+    }
+  </script>
+</body>
+</html>
