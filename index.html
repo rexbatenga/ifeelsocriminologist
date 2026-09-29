@@ -80,7 +80,7 @@
                 </div>
                 <div class="truncate">
                     <span class="text-base sm:text-lg font-bold tracking-tight text-white block leading-tight truncate">IFeelSo<span class="text-crimson-600">Criminologist</span>RightNow</span>
-                    <span class="text-[10px] sm:text-xs text-gray-400 font-mono hidden xs:block">PH Board Exam AI Assistant</span>
+                    <span class="text-[10px] sm:text-xs text-gray-400 font-mono hidden xs:block">PH Board Exam Review Library</span>
                 </div>
             </div>
 
@@ -115,7 +115,7 @@
         <!-- Mobile Navigation Menu Dropdown -->
         <div id="mobileNavMenu" class="hidden md:hidden border-b border-cardborder bg-darkbg p-4 space-y-2">
             <button onclick="switchTab('search'); toggleMobileNav();" class="w-full text-left text-sm p-3 rounded-xl bg-cardbg text-gray-200 flex items-center gap-3">
-                <i class="fa-solid fa-magnifying-glass text-crimson-500"></i> AI Synthesis Engine
+                <i class="fa-solid fa-magnifying-glass text-crimson-500"></i> Search the Library
             </button>
             <button onclick="switchTab('quiz'); toggleMobileNav();" class="w-full text-left text-sm p-3 rounded-xl bg-cardbg text-gray-200 flex items-center gap-3">
                 <i class="fa-solid fa-graduation-cap text-crimson-500"></i> Mock Exam Simulator
@@ -134,10 +134,10 @@
             <!-- Hero / Pillar Selector -->
             <div class="text-center max-w-4xl mx-auto space-y-4">
                 <h1 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
-                    Criminology Legal & Science <span class="text-crimson-600">Knowledge Engine</span>
+                    Criminology Review <span class="text-crimson-600">Library</span>
                 </h1>
                 <p class="text-xs sm:text-base text-gray-400 px-2 max-w-2xl mx-auto">
-                    Ask questions regarding Criminal Law, Jurisprudence, Forensic Science, or Law Enforcement grounded directly in Philippine Board Reviewers.
+                    Search Criminal Law, Jurisprudence, Forensic Science, or Law Enforcement and get the exact answer from the Philippine board reviewers.
                 </p>
                 
                 <!-- Fixed Responsive Wrap Area Tabs (Prevents UI Cut-off) -->
@@ -167,7 +167,7 @@
                         id="searchBtn"
                         class="sm:absolute sm:right-2 sm:top-2 sm:bottom-2 px-5 py-3 sm:py-0 bg-crimson-600 hover:bg-crimson-700 text-white font-medium text-sm rounded-xl transition flex items-center justify-center gap-2 shadow-lg shrink-0">
                         <i class="fa-solid fa-magnifying-glass"></i>
-                        <span>Synthesize</span>
+                        <span>Search</span>
                     </button>
                 </form>
                 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between text-xs text-gray-500 mt-2 px-1 gap-1">
@@ -186,28 +186,17 @@
                                 <i class="fa-solid fa-brain"></i>
                             </div>
                             <div>
-                                <h3 class="font-bold text-white text-sm sm:text-base">AI Legal & Criminology Synthesis</h3>
-                                <p class="text-[11px] sm:text-xs text-gray-400" id="groundedStats">Clear, key points only</p>
+                                <h3 class="font-bold text-white text-sm sm:text-base">Library Results</h3>
+                                <p class="text-[11px] sm:text-xs text-gray-400" id="groundedStats">Answers found in your uploaded books</p>
                             </div>
                         </div>
 
-                        <!-- Language Switcher -->
-                        <div class="flex items-center gap-2 bg-darkbg p-1.5 rounded-xl border border-cardborder self-start sm:self-auto">
-                            <label for="langSelect" class="text-xs text-gray-400 pl-1 font-medium flex items-center gap-1">
-                                <i class="fa-solid fa-language text-crimson-500"></i> Lang:
-                            </label>
-                            <select id="langSelect" onchange="translateResponse()" class="bg-cardbg text-xs text-white rounded-lg px-2 py-1 border border-cardborder outline-none focus:border-crimson-600 cursor-pointer">
-                                <option value="EN">English</option>
-                                <option value="TAG">Tagalog</option>
-                                <option value="BIS">Bisaya</option>
-                            </select>
-                        </div>
-                    </div>
+</div>
 
                     <!-- AI Loader -->
                     <div id="aiLoading" class="hidden py-8 text-center space-y-3">
                         <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-crimson-600 border-t-transparent"></div>
-                        <p class="text-xs sm:text-sm text-gray-400 font-medium">Extracting codals & synthesizing answer...</p>
+                        <p class="text-xs sm:text-sm text-gray-400 font-medium">Searching the library...</p>
                     </div>
 
                     <!-- AI Output Content Area -->
@@ -215,18 +204,6 @@
                         <!-- Populated dynamically -->
                     </div>
 
-                    <!-- Follow-up Chat -->
-                    <div id="chatSection" class="pt-4 border-t border-cardborder space-y-3">
-                        <h4 class="text-[11px] sm:text-xs font-bold text-crimson-500 uppercase tracking-wider flex items-center gap-1.5">
-                            <i class="fa-solid fa-comments"></i> Ask Follow-up Questions
-                        </h4>
-                        <div id="chatMessages" class="space-y-3 max-h-[28rem] overflow-y-auto pr-1"></div>
-                        <form onsubmit="handleChat(event)" class="flex gap-2">
-                            <input type="text" id="chatInput" placeholder="Ask a follow-up about the documents..." autocomplete="off" required
-                                class="flex-1 bg-darkbg border border-cardborder focus:border-crimson-600 rounded-xl px-3 text-xs sm:text-sm text-white outline-none" />
-                            <button type="submit" id="chatSendBtn" class="px-4 bg-crimson-600 hover:bg-crimson-700 text-white rounded-xl transition shrink-0"><i class="fa-solid fa-paper-plane"></i></button>
-                        </form>
-                    </div>
 
                 </div>
             </div>
@@ -277,6 +254,15 @@
                             <option value="20">20 Questions (In-Depth Review)</option>
                         </select>
                     </div>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="block text-xs text-gray-400 font-medium">Question Source</label>
+                    <select id="quizSource" class="w-full bg-darkbg border border-cardborder rounded-xl p-3 text-xs sm:text-sm text-white outline-none focus:border-crimson-600">
+                        <option value="mixed">Mixed: Identification from books + uploaded test papers</option>
+                        <option value="books">Books only (Identification)</option>
+                        <option value="papers">Test papers only (Multiple choice)</option>
+                    </select>
                 </div>
 
                 <button onclick="generateQuiz()" class="w-full bg-crimson-600 hover:bg-crimson-700 text-white font-bold py-3.5 rounded-xl transition shadow-lg shadow-crimson-900/40 flex items-center justify-center gap-2 text-sm">
@@ -506,21 +492,28 @@
                     <div id="uploadStatus" class="text-xs text-emerald-400 hidden font-mono"></div>
                 </div>
 
+                <!-- Section: Test Papers -->
+                <div class="bg-darkbg p-4 sm:p-5 rounded-2xl border border-cardborder space-y-3">
+                    <h3 class="font-bold text-xs sm:text-sm text-white flex items-center gap-2"><i class="fa-solid fa-file-circle-question text-crimson-500"></i> Upload Test Paper</h3>
+                    <p class="text-[11px] text-gray-500">Numbered questions with A–D choices. The answer key can be inside the paper ("Answer: B" or an ANSWER KEY list) or typed below.</p>
+                    <form onsubmit="handlePaperUpload(event)" class="space-y-2.5">
+                        <select id="paperPillar" class="w-full bg-cardbg border border-cardborder rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-crimson-600"><option value="CLJ">Criminal Law Jurisprudence</option><option value="LEA">Law Enforcement Administration</option><option value="CDI">Crime Detection & Investigation</option><option value="FS">Forensic Science</option><option value="CA">Correctional Administration</option><option value="CRIM">Criminology / Sociology</option></select>
+                        <input type="text" id="paperTitle" placeholder="Test paper title (optional)" class="w-full bg-cardbg border border-cardborder rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-crimson-600" />
+                        <input type="file" id="paperFile" accept=".pdf,.txt" required class="w-full text-xs text-gray-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:bg-cardborder file:text-white" />
+                        <textarea id="paperKey" rows="2" placeholder="Answer key if not in the file, e.g. 1.B 2.D 3.A ..." class="w-full bg-cardbg border border-cardborder rounded-xl p-2 text-[11px] text-white outline-none focus:border-crimson-600 font-mono"></textarea>
+                        <button type="submit" class="w-full bg-crimson-600 hover:bg-crimson-700 text-white text-xs font-bold py-2.5 rounded-xl transition">Upload & Extract Questions</button>
+                        <p id="paperStatus" class="hidden text-[11px] text-crimson-400 font-mono"></p>
+                    </form>
+                    <div id="adminPapersList" class="space-y-1.5 max-h-40 overflow-y-auto"></div>
+                </div>
+
                 <!-- Section B: API & Cloud Settings -->
                 <div class="bg-darkbg p-4 sm:p-5 rounded-2xl border border-cardborder space-y-3">
                     <h3 class="font-bold text-xs sm:text-sm text-white flex items-center gap-2">
                         <i class="fa-solid fa-key text-crimson-500"></i> API & Cloud Settings
                     </h3>
                     
-                    <div class="space-y-1.5">
-                        <label class="block text-[11px] text-gray-400">Gemini API Key (Advanced Synthesis AI)</label>
-                        <div class="flex gap-2">
-                            <input type="password" id="geminiApiKeyInput" placeholder="AIzaSy..." class="w-full bg-cardbg border border-cardborder rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-crimson-600 font-mono" />
-                            <button onclick="saveApiKey()" class="bg-cardborder hover:bg-gray-700 text-white text-xs px-3 py-2 rounded-xl transition shrink-0">
-                                Save
-                            </button>
-                        </div>
-                    </div>
+
 
                     <div class="space-y-1.5 pt-2 border-t border-cardborder">
                         <label class="block text-[11px] text-gray-400">Firebase Configuration JSON</label>
@@ -667,6 +660,25 @@
                 return true;
             } catch (err) { return false; }
         };
+
+        window.syncFirebasePapers = async function() {
+            if (!window.db) return false;
+            try {
+                const snap = await getDocs(query(collection(window.db, COL), where("kind", "==", "paper")));
+                const list = [];
+                snap.forEach(d => list.push({ id: d.id, ...d.data() }));
+                window.papers = list;
+                return true;
+            } catch (err) { return false; }
+        };
+        window.savePaperToCloud = async function(paper) {
+            if (!window.db) return false;
+            try { await setDoc(doc(window.db, COL, paper.id), { ...paper, kind: "paper" }); return true; } catch (err) { return false; }
+        };
+        window.deletePaperFromCloud = async function(id) {
+            if (!window.db) return false;
+            try { await deleteDoc(doc(window.db, COL, id)); return true; } catch (err) { return false; }
+        };
     </script>
 
     <!-- Main Application Logic Script -->
@@ -800,6 +812,7 @@
 
         let currentPillar = "ALL";
         window.documents = [];
+        window.papers = [];
         let currentAIResponseText = "";
         let currentSourcesUsed = [];
         const ADMIN_PASS = "Rex61103!";
@@ -812,9 +825,6 @@
             messagingSenderId: "72934652173",
             appId: "1:72934652173:web:6c18f2c1f9b8acdbdd9844"
         };
-        const DEFAULT_GEMINI_KEY = "AQ.Ab8RN6L5VCs4VBYhAQ2jkmGTs_yqbZBBPZAfXhlK2O0aOg5spw";
-        const getGeminiKey = () => localStorage.getItem('gemini_api_key') || DEFAULT_GEMINI_KEY;
-        let chatHistory = [];
 
         let quizQuestions = [];
         let currentQuestionIdx = 0;
@@ -834,6 +844,7 @@
             }
 
             await loadDocuments();
+            await loadPapers();
             renderRepository();
         });
 
@@ -902,7 +913,7 @@
             if (passageCache.key === key) return passageCache.list;
             const list = [];
             window.documents.forEach(d => {
-                const text = d.content.replace(/\s+/g, ' ');
+                const text = cleanText(d.content);
                 const SIZE = 1100, STEP = 900;
                 for (let i = 0; i < text.length; i += STEP) {
                     let chunk = text.slice(i, i + SIZE);
@@ -936,279 +947,297 @@
             return scored.slice(0, limit).map(x => x.p);
         }
 
-        async function callGemini(systemText, contents, opts = {}) {
-            const useSearch = opts.search !== false;
-            const key = getGeminiKey();
-            const studio = m => `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`;
-            const vertex = m => `https://aiplatform.googleapis.com/v1/publishers/google/models/${m}:generateContent`;
-            window.lastGeminiError = "";
-            // AQ. auth keys are the Gemini API's current key type: send them in the x-goog-api-key header
-            // (never in both header and URL). Vertex express endpoint is kept only as a last fallback.
-            const models = ["gemini-3.5-flash", "gemini-3-flash-preview", "gemini-2.5-flash"];
-            const attempts = models.map(m => ({ url: studio(m) }));
-            attempts.push({ url: vertex(models[0]) });
-            const headers = { 'Content-Type': 'application/json', 'x-goog-api-key': key };
-            for (const a of attempts) {
-                const variants = [];
-                if (useSearch && !opts.json) variants.push({ tools: [{ google_search: {} }] });
-                variants.push({});
-                for (const v of variants) {
-                    const body = { systemInstruction: { parts: [{ text: systemText }] }, contents, ...v };
-                    if (opts.json) body.generationConfig = { responseMimeType: "application/json", temperature: 0.8 };
-                    try {
-                        const res = await fetch(a.url, { method: 'POST', headers, body: JSON.stringify(body) });
-                        const data = await res.json().catch(() => ({}));
-                        const text = (data.candidates?.[0]?.content?.parts || []).map(p => p.text || '').join('').trim();
-                        if (text) return text;
-                        window.lastGeminiError = data.error?.message || `HTTP ${res.status}`;
-                        if (res.status === 401 || res.status === 403 || res.status === 429) return null; // key/quota problem: other models won't help
-                        if (res.status !== 400) break;
-                    } catch (e) {
-                        window.lastGeminiError = e.message || "Network error";
-                        break;
-                    }
-                }
-            }
-            return null;
+        // ---- Library search (no AI): find the passages, pull out the answer, organize it ----
+        // Strips the review-center name and page markers from anything shown to users
+        function cleanText(t) {
+            return String(t || '')
+                .replace(/amici\s+review\s+center/gi, ' ')
+                .replace(/\bamici\b/gi, ' ')
+                .replace(/\b(?:pages?|pg|pp?)\.?\s*\d+(?:\s*(?:of|\/)\s*\d+)?/gi, ' ')
+                .replace(/(?:^|\s)[-–—]\s*\d{1,4}\s*[-–—](?=\s|$)/g, ' ')
+                .replace(/\s{2,}/g, ' ')
+                .trim();
         }
-
-        function buildSystemPrompt(passages, followUp) {
-            const material = passages.length
-                ? passages.map((p, i) => `[Excerpt ${i + 1}]\n${p.text}`).join("\n\n")
-                : "(no matching excerpts found)";
-            return `You are the built-in tutor of a Philippine Criminology review website. The user has NO books and can only ask you, so you must do the reading for them.
-
-HOW TO ANSWER
-1. Read the reference excerpts below and find the exact answer to the question. State it directly, in your own clear words. Never paste or quote page text, and never mention page numbers, excerpts, books, documents, or sources.
-2. If the excerpts only partly cover the question, or don't cover it at all, complete the answer from your general knowledge of the topic and what is widely established online (use Google Search when it helps). Give accurate, current Philippine law and practice when the question is about the Philippines. Do not say the material is missing; just answer well.
-3. If the excerpts and general knowledge disagree, prefer the current, correct answer.
-
-FORMAT (strict)
-${followUp ? "This is a follow-up: keep it brief." : ""}
-- Start with '### Short Answer': 1-2 sentences giving the direct answer.
-- Then '### Key Points': 3-6 short bullets ('- '), one idea each, with the key term in **bold**. Use a numbered list only for ordered steps or legal elements.
-- Skip the Key Points section if the Short Answer already says everything. No exam tips, no filler, no restating the question, no long paragraphs, no tables.
-
-Reference excerpts:
-${material}`;
+        const escHtml = t => t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        const clip = (t, n) => t.length > n ? t.slice(0, n).replace(/\s+\S*$/, '') + '…' : t;
+        const getWords = q => [...new Set(q.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length > 2 && !STOP.has(w)))];
+        function splitSentences(text) {
+            return text.replace(/\s+/g, ' ').split(/(?<=[.!?])\s+(?=[A-Z0-9"“(])/).map(t => t.trim()).filter(t => t.length >= 25);
         }
-
-        async function handleChat(e) {
-            e.preventDefault();
-            const input = document.getElementById('chatInput');
-            const q = input.value.trim();
-            if (!q) return;
-            input.value = '';
-            const box = document.getElementById('chatMessages');
-            const esc = t => t.replace(/&/g,'&amp;').replace(/</g,'&lt;');
-            box.insertAdjacentHTML('beforeend', `<div class="flex justify-end"><div class="bg-crimson-900/60 border border-crimson-800 text-white rounded-2xl rounded-br-sm px-3 py-2 text-xs sm:text-sm max-w-[85%]">${esc(q)}</div></div>`);
-            const id = 'bot-' + Date.now();
-            box.insertAdjacentHTML('beforeend', `<div class="flex"><div id="${id}" class="bg-darkbg border border-cardborder text-gray-200 rounded-2xl rounded-bl-sm px-3 py-2 text-xs sm:text-sm max-w-[92%] leading-relaxed"><i class="fa-solid fa-ellipsis animate-pulse"></i></div></div>`);
-            box.scrollTop = box.scrollHeight;
-
-            const lastQ = chatHistory.length ? chatHistory[chatHistory.length - 2]?.parts[0].text : "";
-            const passages = retrievePassages(q + " " + (lastQ || ""));
-            const got = await callGemini(buildSystemPrompt(passages, true), [...chatHistory, { role: 'user', parts: [{ text: q }] }]);
-            const reply = got || `### Short Answer\nI couldn't reach the AI just now.\n\n- **Reason:** ${window.lastGeminiError || 'unknown'}`;
-            if (got) chatHistory.push({ role: 'user', parts: [{ text: q }] }, { role: 'model', parts: [{ text: got }] });
-            document.getElementById(id).innerHTML = mdToHtml(reply);
-            box.scrollTop = box.scrollHeight;
+        function highlight(text, words) {
+            const h = escHtml(text);
+            if (!words.length) return h;
+            return h.replace(new RegExp('\\b(' + words.join('|') + ')', 'gi'), '<mark class="bg-crimson-900/70 text-white rounded px-0.5">$1</mark>');
         }
+        const DEFINING = /\b(is|are|refers? to|means?|defined as|shall|penalt(y|ies)|penalized|elements?)\b/i;
+        function scoreSentence(s, words) {
+            const l = s.toLowerCase();
+            const hits = words.filter(w => l.includes(w)).length;
+            return hits ? hits + (DEFINING.test(s) ? 0.5 : 0) : 0;
+        }
+        const goodSentence = s => !/^[a-z]/.test(s) && /[.!?"”)]$/.test(s);
+        const sectionHead = t => `<h3 class="flex items-center gap-2 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-crimson-500 mt-7 first:mt-0 mb-3"><span class="w-1 h-4 rounded bg-crimson-600"></span>${t}</h3>`;
 
-        async function handleSearch(e) {
+        function handleSearch(e) {
             e.preventDefault();
             const query = document.getElementById('userQuery').value.trim();
             if (!query) return;
+            document.getElementById('aiResponseContainer').classList.remove('hidden');
+            document.getElementById('aiLoading').classList.add('hidden');
 
-            const aiContainer = document.getElementById('aiResponseContainer');
-            const aiLoading = document.getElementById('aiLoading');
-            const aiOutput = document.getElementById('aiOutputContent');
+            const words = getWords(query);
+            const passages = retrievePassages(query, 6);
+            let html = '';
 
-            aiContainer.classList.remove('hidden');
-            aiLoading.classList.remove('hidden');
-            aiOutput.innerHTML = '';
-            document.getElementById('chatMessages').innerHTML = '';
-            chatHistory = [];
-            document.getElementById('langSelect').value = 'EN';
+            if (!passages.length) {
+                html = `<p class="text-gray-400">Nothing in the library matches this yet. Try different keywords, choose "All 6 Pillars", or upload a reviewer in the admin panel.</p>`;
+            } else {
+                const best = passages[0];
+                const sents = splitSentences(best.text).filter(goodSentence).map((s, i) => ({ s, i, sc: scoreSentence(s, words) })).filter(x => x.sc > 0);
+                const top = sents.sort((a, b) => b.sc - a.sc).slice(0, 2).sort((a, b) => a.i - b.i).map(x => x.s);
+                const shown = new Set(top.map(t => t.toLowerCase()));
 
-            const passages = retrievePassages(query);
-            const answer = await callGemini(buildSystemPrompt(passages, false), [{ role: 'user', parts: [{ text: query }] }]);
-            currentAIResponseText = answer || `### Short Answer\nI couldn't reach the AI just now.\n\n- **Reason:** ${window.lastGeminiError || 'unknown'}\n- Open the admin panel and paste a fresh Gemini key (AI Studio → API Keys), then try again.`;
-            if (answer) chatHistory = [{ role: 'user', parts: [{ text: query }] }, { role: 'model', parts: [{ text: answer }] }];
+                html += sectionHead('Short Answer');
+                html += top.length
+                    ? `<div class="border-l-2 border-crimson-600 pl-3 sm:pl-4 text-gray-100 leading-7">${highlight(top.join(' '), words)}</div>`
+                    : `<div class="border-l-2 border-crimson-600 pl-3 sm:pl-4 text-gray-100 leading-7">${highlight(clip(best.text, 400), words)}</div>`;
 
-            aiLoading.classList.add('hidden');
-            renderFormattedResponse(currentAIResponseText);
-        }
-
-        function mdToHtml(text) {
-            const esc = t => t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-            const inline = t => esc(t)
-                .replace(/\*\*(.+?)\*\*/g,'<strong class="text-white font-semibold">$1</strong>')
-                .replace(/(^|[^*])\*(?!\s)(.+?)\*(?!\*)/g,'$1<em class="text-gray-300">$2</em>');
-            const out = []; let list = null;
-            const close = () => { if (list) { out.push(list === 'ul' ? '</ul>' : '</ol>'); list = null; } };
-            for (const raw of text.split('\n')) {
-                const line = raw.trim();
-                if (!line) { close(); continue; }
-                let m;
-                if ((m = line.match(/^#{1,4}\s+(.*)/))) {
-                    close();
-                    out.push(`<h3 class="flex items-center gap-2 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-crimson-500 mt-6 first:mt-0 mb-2"><span class="w-1 h-4 rounded bg-crimson-600"></span>${inline(m[1].replace(/\*\*/g,''))}</h3>`);
-                } else if ((m = line.match(/^[-*•]\s+(.*)/))) {
-                    if (list !== 'ul') { close(); out.push('<ul class="space-y-2 my-1">'); list = 'ul'; }
-                    out.push(`<li class="flex gap-2.5"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-crimson-600 shrink-0"></span><span>${inline(m[1])}</span></li>`);
-                } else if ((m = line.match(/^(\d+)[.)]\s+(.*)/))) {
-                    if (list !== 'ol') { close(); out.push('<ol class="space-y-2 my-1">'); list = 'ol'; }
-                    out.push(`<li class="flex gap-2.5"><span class="w-5 h-5 rounded-full bg-crimson-950 border border-crimson-800 text-crimson-500 text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">${m[1]}</span><span>${inline(m[2])}</span></li>`);
-                } else {
-                    close();
-                    out.push(`<p class="my-1">${inline(line)}</p>`);
+                const need = Math.max(1, Math.ceil(words.length / 2));
+                const seen = new Set();
+                const points = [];
+                passages.slice(0, 5).forEach(p => splitSentences(p.text).filter(goodSentence).forEach(s => {
+                    const sc = scoreSentence(s, words), key = s.toLowerCase().slice(0, 60);
+                    if (sc >= need && !shown.has(s.toLowerCase()) && !seen.has(key)) { seen.add(key); points.push({ s, sc }); }
+                }));
+                points.sort((a, b) => b.sc - a.sc);
+                if (points.length) {
+                    html += sectionHead('Key Points');
+                    html += `<ul class="space-y-2.5">` + points.slice(0, 5).map(x =>
+                        `<li class="flex gap-2.5"><span class="mt-2.5 w-1.5 h-1.5 rounded-full bg-crimson-600 shrink-0"></span><span>${highlight(clip(x.s, 300), words)}</span></li>`).join('') + `</ul>`;
                 }
             }
-            close();
-            return out.join('');
-        }
-
-        function renderFormattedResponse(text) {
             document.getElementById('aiOutputContent').innerHTML =
-                `<div class="bg-darkbg/40 p-4 sm:p-6 rounded-2xl border border-cardborder text-sm sm:text-[15px] leading-relaxed sm:leading-7 text-gray-300 max-w-none">${mdToHtml(text)}</div>`;
+                `<div class="bg-darkbg/40 p-4 sm:p-6 rounded-2xl border border-cardborder text-sm sm:text-[15px] leading-relaxed text-gray-300">${html}</div>`;
         }
 
-        // --- EXAM ENGINE & REALTIME RESULT TRANSMISSION ---
         function shuffle(arr) {
             const a = [...arr];
             for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
             return a;
         }
 
-        function pickExamPassages(pillar, n) {
-            let pool = buildPassages().filter(p => p.text.length > 400 && (pillar === "ALL" || p.pillar === pillar));
-            if (pillar !== "ALL") return shuffle(pool).slice(0, n);
-            // comprehensive: spread evenly over the pillars that have material
-            const by = {};
-            pool.forEach(p => (by[p.pillar] = by[p.pillar] || []).push(p));
-            const groups = Object.values(by).map(shuffle);
+        // ---- Mock exam built from the book text (no AI) ----
+        const DEF_RE = /^((?!(?:It|This|That|These|Those|There|He|She|They|The following|In|On|At|As|If|When|Under|Any|Such|Article|Section)\b)[A-Z][A-Za-z'’\-]*(?:\s+[A-Za-z'’\-]+){0,5}?)\s+(?:is|are|refers to|means|is defined as|are defined as)\s+(?:an?\s+|the\s+)?([^.]{25,260})\.$/;
+
+        function examSentences(passages) {
             const out = [];
-            for (let i = 0; out.length < n && groups.some(g => g.length); i++) {
-                const g = groups[i % groups.length];
-                if (g.length) out.push(g.pop());
-            }
+            passages.forEach(p => splitSentences(p.text).forEach(s => {
+                if (s.length < 50 || s.length > 320 || !goodSentence(s)) return;
+                if ((s.match(/[A-Za-z]/g) || []).length / s.length < 0.72) return;
+                if (/\.{3,}|_{3,}|\b(chapter|copyright|isbn)\b/i.test(s)) return;
+                out.push({ s, pillar: p.pillar });
+            }));
             return out;
         }
 
-        async function generateBatch(pillar, count) {
-            const passages = pickExamPassages(pillar, Math.min(10, Math.max(4, count)));
-            if (!passages.length) return [];
-            const material = passages.map((p, i) => `[Excerpt ${i + 1} | pillar ${p.pillar}]\n${p.text}`).join("\n\n");
-            const sys = `You write Philippine Criminology Board Examination multiple-choice questions.
-Write exactly ${count} DIFFERENT questions based on facts, definitions, elements, articles, rules and procedures found in the excerpts below. Each question must:
-- stand on its own (never say "according to the excerpt/passage/text/book"), be clear, and test one specific point;
-- have exactly 4 plausible options with only one correct answer; wrong options must be realistic, not silly;
-- cover different excerpts and different kinds of knowledge (definitions, elements, penalties, procedures, terms);
-- include a one-sentence rationale explaining why the answer is correct.
-Skip trivia about page numbers, headings, or formatting.
-Return ONLY a JSON array: [{"pillar":"CLJ|LEA|CDI|FS|CA|CRIM","question":"...","options":["...","...","...","..."],"correct":0,"rationale":"..."}] where "correct" is the 0-based index of the right option and "pillar" is the pillar of the excerpt used.
+        // ---- Question sources: Identification from the books + multiple-choice from uploaded test papers ----
+        const normAns = t => String(t || '').toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\b(the|a|an|of)\b/g, ' ').replace(/\s+/g, ' ').trim();
+        function lev(a, b) {
+            const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
+            for (let j = 1; j <= b.length; j++) d[0][j] = j;
+            for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++)
+                d[i][j] = Math.min(d[i-1][j] + 1, d[i][j-1] + 1, d[i-1][j-1] + (a[i-1] === b[j-1] ? 0 : 1));
+            return d[a.length][b.length];
+        }
+        function isAnswerCorrect(q, ans) {
+            if (q.type !== 'id') return ans === q.correct;
+            const u = normAns(ans), c = normAns(q.answer);
+            if (!u) return false;
+            if (u === c) return true;
+            const cw = c.split(' ').filter(w => w.length > 2), uw = u.split(' ');
+            if (cw.length > 1 && cw.every(w => uw.includes(w))) return true;
+            return lev(u, c) <= (c.length > 8 ? 2 : c.length > 4 ? 1 : 0);
+        }
+        const unanswered = (q, a) => q.type === 'id' ? !String(a || '').trim() : a === null;
+        const shownAnswer = (q, a) => q.type === 'id' ? (String(a || '').trim() || 'None') : (q.options[a] || 'None');
+        const correctText = q => q.type === 'id' ? q.answer : q.options[q.correct];
 
-Excerpts:
-${material}`;
-            for (let attempt = 0; attempt < 2; attempt++) {
-                const raw = await callGemini(sys, [{ role: 'user', parts: [{ text: `Generate the ${count} questions now.` }] }], { json: true });
-                if (!raw) continue;
-                try {
-                    const arr = JSON.parse(raw.replace(/^```json|^```|```$/gm, '').trim());
-                    const ok = (Array.isArray(arr) ? arr : []).filter(q => q && typeof q.question === 'string' && Array.isArray(q.options) && q.options.length === 4 && Number.isInteger(q.correct) && q.correct >= 0 && q.correct < 4);
-                    if (ok.length) return ok.map(q => {
-                        const order = shuffle([0, 1, 2, 3]);
-                        return {
-                            pillar: ["CLJ","LEA","CDI","FS","CA","CRIM"].includes(q.pillar) ? q.pillar : (pillar === "ALL" ? "CLJ" : pillar),
-                            question: q.question.trim(),
-                            options: order.map(i => String(q.options[i])),
-                            correct: order.indexOf(q.correct),
-                            rationale: q.rationale || ""
-                        };
-                    });
-                } catch (e) { window.lastGeminiError = "Bad quiz format from AI"; }
-            }
-            return [];
+        function paperQuestions(pillar) {
+            return (window.papers || []).filter(p => pillar === "ALL" || p.pillar === pillar).flatMap(p =>
+                p.questions.map(q => ({ type: 'mc', pillar: p.pillar, question: cleanText(q.question), options: q.options.map(cleanText), correct: q.correct, rationale: 'From the uploaded test paper.' })));
         }
 
-        async function generateQuiz() {
+        function buildIdentification(pillar, target) {
+            const pool = buildPassages().filter(p => pillar === "ALL" || p.pillar === pillar);
+            const items = examSentences(shuffle(pool).slice(0, 200));
+            const cap = t => t.charAt(0).toUpperCase() + t.slice(1);
+            const out = [], used = new Set();
+            shuffle(items).forEach(it => {
+                if (out.length >= target) return;
+                const m = it.s.match(DEF_RE);
+                if (!m || m[1].length > 60) return;
+                const term = m[1].trim(), text = cap(m[2].trim());
+                if (used.has(term.toLowerCase()) || text.toLowerCase().includes(term.toLowerCase())) return;
+                used.add(term.toLowerCase());
+                const words = term.split(/\s+/).length;
+                out.push({ type: 'id', pillar: it.pillar, question: `"${text}." Identify the term being described.`, answer: term, hint: `${words} word${words > 1 ? 's' : ''}`, rationale: `From the book: "${clip(it.s, 300)}"` });
+            });
+            return out;
+        }
+
+        function generateQuiz() {
             const usernameInput = document.getElementById('examineeUsername').value.trim();
             if (!usernameInput) {
                 alert("Please enter your Username / Examinee Name before starting.");
                 document.getElementById('examineeUsername').focus();
                 return;
             }
-
             examineeName = usernameInput;
-            const selectedPillar = document.getElementById('quizPillar').value;
-            const targetCount = parseInt(document.getElementById('quizLength').value, 10);
-            const btn = document.querySelector('#quizSetupCard button[onclick="generateQuiz()"]');
-            const original = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Building your exam from the books...`;
+            const pillar = document.getElementById('quizPillar').value;
+            const target = parseInt(document.getElementById('quizLength').value, 10);
+            const source = document.getElementById('quizSource').value;
 
-            // Split into batches of at most 10 questions and generate them in parallel
-            const sizes = [];
-            for (let left = targetCount; left > 0; left -= 10) sizes.push(Math.min(10, left));
-            const batches = await Promise.all(sizes.map(n => generateBatch(selectedPillar, n)));
-            const seen = new Set();
-            let generated = batches.flat().filter(q => { const k = q.question.toLowerCase(); if (seen.has(k)) return false; seen.add(k); return true; });
-
-            let usedBackup = false;
-            if (generated.length < targetCount) {
-                // top up from the built-in bank without repeating any question
-                let backup = shuffle(SAMPLE_QUESTION_BANK.filter(q => (selectedPillar === "ALL" || q.pillar === selectedPillar) && !seen.has(q.question.toLowerCase())));
-                if (generated.length === 0 && backup.length === 0) backup = shuffle(SAMPLE_QUESTION_BANK);
-                const need = targetCount - generated.length;
-                if (backup.length) usedBackup = true;
-                generated = generated.concat(backup.slice(0, need).map(q => ({ ...q })));
+            const papers = shuffle(paperQuestions(pillar));
+            let list = [];
+            if (source === 'papers') list = papers.slice(0, target);
+            else if (source === 'books') list = buildIdentification(pillar, target);
+            else {
+                const half = Math.ceil(target / 2);
+                const ids = buildIdentification(pillar, papers.length ? half : target);
+                list = [...papers.slice(0, target - ids.length), ...ids];
             }
-
-            btn.disabled = false;
-            btn.innerHTML = original;
-
-            if (generated.length === 0) {
-                alert("Couldn't build the exam" + (window.lastGeminiError ? " (" + window.lastGeminiError + ")" : "") + ". Please try again.");
-                return;
+            const found = list.length;
+            if (source === 'mixed' && list.length === 0) {
+                list = shuffle(SAMPLE_QUESTION_BANK.filter(q => pillar === "ALL" || q.pillar === pillar)).map(q => ({ ...q, type: 'mc' })).slice(0, target);
             }
-            if (usedBackup) {
-                alert(`Only ${generated.filter(q => !SAMPLE_QUESTION_BANK.some(b => b.question === q.question)).length} questions could be built from the books` + (window.lastGeminiError ? " (" + window.lastGeminiError + ")" : "") + `. The rest come from the built-in bank, so the exam may be shorter than requested.`);
-            }
+            if (!list.length) { alert(source === 'papers' ? "No test papers uploaded for this subject yet." : "No questions available for this subject yet. Upload a reviewer or test paper first."); return; }
+            if (found < target && found > 0) alert(`Only ${found} question${found === 1 ? '' : 's'} could be found for this subject and source, so the exam is shorter. Upload more books or test papers for fuller exams.`);
 
-            quizQuestions = shuffle(generated).slice(0, targetCount);
+            quizQuestions = shuffle(list).slice(0, target);
             currentQuestionIdx = 0;
             userAnswers = new Array(quizQuestions.length).fill(null);
-
             document.getElementById('quizSetupCard').classList.add('hidden');
             document.getElementById('quizResultCard').classList.add('hidden');
             document.getElementById('quizContainer').classList.remove('hidden');
-
             document.getElementById('activeExamineeDisplay').innerText = examineeName;
-
             renderQuestion();
         }
 
         function renderQuestion() {
             const q = quizQuestions[currentQuestionIdx];
             document.getElementById('quizQuestionTracker').innerText = `Question ${currentQuestionIdx + 1} of ${quizQuestions.length}`;
-            document.getElementById('quizBadge').innerText = `PILLAR: ${q.pillar}`;
+            document.getElementById('quizBadge').innerText = `${q.type === 'id' ? 'IDENTIFICATION' : 'MULTIPLE CHOICE'} · ${q.pillar}`;
             document.getElementById('quizQuestionText').innerText = q.question;
 
-            const optsContainer = document.getElementById('quizOptions');
-            optsContainer.innerHTML = q.options.map((opt, i) => `
-                <button onclick="selectOption(${i})" class="quiz-opt-btn w-full text-left p-3.5 sm:p-4 rounded-xl border border-cardborder bg-darkbg hover:border-crimson-600 transition flex items-center gap-3 text-xs sm:text-sm text-gray-300 ${userAnswers[currentQuestionIdx] === i ? 'border-crimson-600 bg-crimson-950/40 text-white font-medium' : ''}">
-                    <span class="w-6 h-6 rounded-full border border-cardborder flex items-center justify-center text-xs font-mono shrink-0">${String.fromCharCode(65 + i)}</span>
-                    <span class="leading-snug">${opt}</span>
-                </button>
-            `).join('');
-
-            const nextBtn = document.getElementById('quizNextBtn');
-            if (currentQuestionIdx === quizQuestions.length - 1) {
-                nextBtn.innerHTML = `Submit <i class="fa-solid fa-check ml-1"></i>`;
+            const box = document.getElementById('quizOptions');
+            if (q.type === 'id') {
+                box.innerHTML = `
+                    <input id="idAnswer" type="text" autocomplete="off" placeholder="Type your answer..." value="${escHtml(userAnswers[currentQuestionIdx] || '').replace(/"/g, '&quot;')}"
+                        class="w-full bg-darkbg border-2 border-cardborder focus:border-crimson-600 rounded-xl p-3.5 text-sm text-white outline-none" />
+                    <p class="text-[11px] text-gray-500 mt-1.5">Hint: ${escHtml(q.hint || '')}</p>`;
+                const inp = document.getElementById('idAnswer');
+                inp.oninput = () => { userAnswers[currentQuestionIdx] = inp.value; };
+                inp.onkeydown = ev => { if (ev.key === 'Enter') nextQuestion(); };
+                inp.focus();
             } else {
-                nextBtn.innerHTML = `Next <i class="fa-solid fa-arrow-right ml-1"></i>`;
+                box.innerHTML = q.options.map((opt, i) => `
+                    <button onclick="selectOption(${i})" class="quiz-opt-btn w-full text-left p-3.5 sm:p-4 rounded-xl border ${userAnswers[currentQuestionIdx] === i ? 'border-crimson-600 bg-crimson-950/40 text-white font-medium' : 'border-cardborder bg-darkbg text-gray-300'} hover:border-crimson-600 transition flex items-center gap-3 text-xs sm:text-sm">
+                        <span class="w-6 h-6 rounded-full border border-cardborder flex items-center justify-center text-xs font-mono shrink-0">${String.fromCharCode(65 + i)}</span>
+                        <span class="leading-snug">${escHtml(opt)}</span>
+                    </button>`).join('');
             }
+            document.getElementById('quizNextBtn').innerHTML = currentQuestionIdx === quizQuestions.length - 1
+                ? `Submit <i class="fa-solid fa-check ml-1"></i>` : `Next <i class="fa-solid fa-arrow-right ml-1"></i>`;
+        }
+
+        // ---- Test paper parsing: questions, A-D choices and answer key ----
+        function parseTestPaper(raw, extraKey) {
+            let text = cleanText(raw);
+            let keyText = extraKey || '', body = text;
+            const km = text.match(/(answer\s*key|key\s*to\s*correction|answer\s*sheet)[\s\S]*$/i);
+            if (km && km.index > text.length * 0.3) { keyText += '\n' + km[0]; body = text.slice(0, km.index); }
+            const key = {};
+            for (const m of keyText.matchAll(/(\d{1,3})\s*[.):\-–=]?\s*([A-Da-d])\b/g)) if (!(+m[1] in key)) key[+m[1]] = m[2].toUpperCase().charCodeAt(0) - 65;
+
+            const starts = []; let expect = 1;
+            for (const m of body.matchAll(/(?:^|\s)(\d{1,3})[.)]\s+(?=[A-Z"“(])/g)) {
+                if (+m[1] === expect) { starts.push({ n: expect, at: m.index + m[0].length, from: m.index }); expect++; }
+            }
+            const questions = []; let skipped = 0;
+            starts.forEach((st, i) => {
+                let chunk = body.slice(st.at, i + 1 < starts.length ? starts[i + 1].from : body.length).replace(/\s+/g, ' ').trim();
+                let inline;
+                const am = chunk.match(/\b(?:answer|ans)\.?\s*[:\-]?\s*\(?([A-Da-d])\b\)?[.)]?.*$/i);
+                if (am) { inline = am[1].toUpperCase().charCodeAt(0) - 65; chunk = chunk.slice(0, am.index).trim(); }
+                const marks = []; let L = 0;
+                for (const m of chunk.matchAll(/(?:^|\s)\(?([A-Da-d])[.)]\s+/g)) {
+                    if (m[1].toUpperCase().charCodeAt(0) - 65 === L) { marks.push({ at: m.index, end: m.index + m[0].length }); L++; }
+                }
+                if (marks.length < 3) { skipped++; return; }
+                const question = chunk.slice(0, marks[0].at).trim();
+                const options = marks.map((mk, k) => chunk.slice(mk.end, k + 1 < marks.length ? marks[k + 1].at : chunk.length).trim());
+                const correct = inline !== undefined ? inline : key[st.n];
+                if (!question || options.some(o => !o) || correct === undefined || correct >= options.length) { skipped++; return; }
+                questions.push({ question, options, correct });
+            });
+            return { questions, skipped, total: starts.length };
+        }
+
+        async function extractFileText(file) {
+            if (file.name.toLowerCase().endsWith('.pdf')) {
+                const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+                let t = '';
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const c = await (await pdf.getPage(i)).getTextContent();
+                    t += c.items.map(x => x.str).join(' ') + '\n';
+                }
+                return t;
+            }
+            return await file.text();
+        }
+
+        async function loadPapers() {
+            let ok = false;
+            if (window.syncFirebasePapers) ok = await window.syncFirebasePapers();
+            if (!ok || !(window.papers || []).length) {
+                try { window.papers = JSON.parse(localStorage.getItem('criminology_papers') || '[]'); } catch (e) { window.papers = []; }
+            }
+        }
+        function savePapersLocal() { try { localStorage.setItem('criminology_papers', JSON.stringify(window.papers)); } catch (e) {} }
+
+        async function handlePaperUpload(e) {
+            e.preventDefault();
+            const file = document.getElementById('paperFile').files[0];
+            const statusEl = document.getElementById('paperStatus');
+            if (!file) return;
+            statusEl.classList.remove('hidden');
+            statusEl.innerText = "Reading test paper...";
+            try {
+                const res = parseTestPaper(await extractFileText(file), document.getElementById('paperKey').value);
+                if (!res.questions.length) { statusEl.innerText = `No usable questions found (${res.total} numbered items, ${res.skipped} skipped). Each question needs A–D choices and an answer key.`; return; }
+                const paper = { id: 'paper-' + Date.now(), pillar: document.getElementById('paperPillar').value, title: document.getElementById('paperTitle').value.trim() || file.name, source: file.name, questions: res.questions };
+                window.papers.unshift(paper);
+                savePapersLocal();
+                if (window.savePaperToCloud) await window.savePaperToCloud(paper);
+                renderAdminPapersList();
+                document.getElementById('paperTitle').value = ''; document.getElementById('paperFile').value = ''; document.getElementById('paperKey').value = '';
+                statusEl.innerText = `Saved ${res.questions.length} questions` + (res.skipped ? `. ${res.skipped} skipped (missing choices or answer).` : '.');
+            } catch (err) { statusEl.innerText = "Couldn't read this file. Use a text-based PDF or TXT."; }
+        }
+
+        function renderAdminPapersList() {
+            document.getElementById('adminPapersList').innerHTML = (window.papers || []).map(p => `
+                <div class="flex items-center justify-between bg-cardbg p-2 sm:p-2.5 rounded-xl border border-cardborder text-xs">
+                    <div class="truncate max-w-[200px] sm:max-w-xs"><span class="text-crimson-500 font-bold font-mono">[${p.pillar}]</span>
+                    <span class="text-white ml-1 font-medium">${escHtml(p.title)}</span> <span class="text-gray-500">· ${p.questions.length} Qs</span></div>
+                    <button onclick="deletePaper('${p.id}')" class="text-gray-500 hover:text-crimson-500 p-1"><i class="fa-solid fa-trash"></i></button>
+                </div>`).join('') || '<p class="text-xs text-gray-500">No test papers yet.</p>';
+        }
+        async function deletePaper(id) {
+            window.papers = window.papers.filter(p => p.id !== id);
+            savePapersLocal();
+            if (window.deletePaperFromCloud) await window.deletePaperFromCloud(id);
+            renderAdminPapersList();
         }
 
         function selectOption(idx) {
@@ -1217,8 +1246,8 @@ ${material}`;
         }
 
         function nextQuestion() {
-            if (userAnswers[currentQuestionIdx] === null) {
-                alert("Please select an answer before proceeding.");
+            if (unanswered(quizQuestions[currentQuestionIdx], userAnswers[currentQuestionIdx])) {
+                alert("Please answer this question before proceeding.");
                 return;
             }
 
@@ -1239,7 +1268,7 @@ ${material}`;
         async function finishQuiz() {
             let score = 0;
             quizQuestions.forEach((q, idx) => {
-                if (userAnswers[idx] === q.correct) score++;
+                if (isAnswerCorrect(q, userAnswers[idx])) score++;
             });
 
             const pct = Math.round((score / quizQuestions.length) * 100);
@@ -1275,17 +1304,17 @@ ${material}`;
 
             const reviewBox = document.getElementById('answersReviewList');
             reviewBox.innerHTML = quizQuestions.map((q, i) => {
-                const isCorrect = userAnswers[i] === q.correct;
+                const isCorrect = isAnswerCorrect(q, userAnswers[i]);
                 return `
                     <div class="p-3 sm:p-4 rounded-xl border ${isCorrect ? 'border-emerald-900 bg-emerald-950/20' : 'border-crimson-900 bg-crimson-950/20'} space-y-1.5 text-xs">
                         <div class="flex justify-between font-bold">
                             <span class="${isCorrect ? 'text-emerald-400' : 'text-crimson-400'}">Q${i+1}: ${isCorrect ? '✓ Correct' : '✗ Incorrect'}</span>
                             <span class="text-gray-500">[${q.pillar}]</span>
                         </div>
-                        <p class="text-white font-medium">${q.question}</p>
-                        <div class="text-gray-400">Your Answer: <span class="text-gray-200">${q.options[userAnswers[i]] || 'None'}</span></div>
-                        ${!isCorrect ? `<div class="text-emerald-400">Correct Answer: ${q.options[q.correct]}</div>` : ''}
-                        <div class="text-gray-500 pt-1 border-t border-cardborder/50 font-mono">Rationale: ${q.rationale}</div>
+                        <p class="text-white font-medium">${escHtml(q.question)}</p>
+                        <div class="text-gray-400">Your Answer: <span class="text-gray-200">${escHtml(shownAnswer(q, userAnswers[i]))}</span></div>
+                        ${!isCorrect ? `<div class="text-emerald-400">Correct Answer: ${escHtml(correctText(q))}</div>` : ''}
+                        <div class="text-gray-500 pt-1 border-t border-cardborder/50 font-mono">Rationale: ${escHtml(q.rationale || '')}</div>
                     </div>
                 `;
             }).join('');
@@ -1332,57 +1361,6 @@ ${material}`;
             document.getElementById('quizResultCard').classList.add('hidden');
         }
 
-        async function translateResponse() {
-            const targetLang = document.getElementById('langSelect').value;
-            if (!currentAIResponseText) return;
-
-            const aiOutput = document.getElementById('aiOutputContent');
-
-            if (targetLang === "EN") {
-                renderFormattedResponse(currentAIResponseText);
-                return;
-            }
-
-            aiOutput.innerHTML = `<div class="text-xs text-crimson-400 font-mono animate-pulse">Translating into ${targetLang === 'TAG' ? 'Tagalog' : 'Bisaya'}...</div>`;
-
-            const apiKey = getGeminiKey();
-            if (apiKey) {
-                try {
-                    const prompt = `Translate the following into ${targetLang === 'TAG' ? 'Tagalog' : 'Bisaya/Cebuano'}. Keep the exact markdown structure (### headings, - bullets, **bold**) and keep legal terms and article numbers as-is:\n\n${currentAIResponseText}`;
-                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`, {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-                    });
-                    const data = await res.json();
-                    const translatedText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-                    if (translatedText) {
-                        renderFormattedResponse(translatedText);
-                        return;
-                    }
-                } catch (e) {}
-            }
-
-            setTimeout(() => {
-                let translated = ruleBasedTranslate(currentAIResponseText, targetLang);
-                renderFormattedResponse(translated);
-            }, 300);
-        }
-
-        function ruleBasedTranslate(text, lang) {
-            let res = text;
-            if (lang === "TAG") {
-                res = res
-                    .replace(/Key Legal Analysis & Synthesis/g, "Pangunahing Pagsusuri sa Batas")
-                    .replace(/Based on the Philippine Criminology codals/g, "Batay sa mga kodigo at tagasuri ng Kriminolohiya sa Pilipinas");
-            } else if (lang === "BIS") {
-                res = res
-                    .replace(/Key Legal Analysis & Synthesis/g, "Pangunahing Pagsusi sa Balaod")
-                    .replace(/Based on the Philippine Criminology codals/g, "Pinasikad sa mga kodigo sa Kriminolohiya sa Pilipinas");
-            }
-            return res + `\n\n*(Naka-translate sa ${lang === 'TAG' ? 'Tagalog' : 'Bisaya'})*`;
-        }
-
         function switchTab(view) {
             document.getElementById('viewSearch').classList.add('hidden');
             document.getElementById('viewLibrary').classList.add('hidden');
@@ -1404,10 +1382,10 @@ ${material}`;
                 <div class="bg-cardbg border border-cardborder rounded-2xl p-4 sm:p-5 space-y-2 hover:border-crimson-800 transition">
                     <div class="flex items-center justify-between">
                         <span class="text-[10px] sm:text-xs px-2 py-0.5 bg-crimson-950 text-crimson-400 border border-crimson-900 rounded-lg font-mono font-bold">${d.pillar}</span>
-                        <span class="text-[10px] sm:text-xs text-gray-500">${d.source}</span>
+                        <span class="text-[10px] sm:text-xs text-gray-500">${escHtml(cleanText(d.source))}</span>
                     </div>
-                    <h4 class="font-bold text-white text-xs sm:text-sm">${d.title}</h4>
-                    <p class="text-xs text-gray-400 line-clamp-3 leading-relaxed">${d.content}</p>
+                    <h4 class="font-bold text-white text-xs sm:text-sm">${escHtml(cleanText(d.title))}</h4>
+                    <p class="text-xs text-gray-400 line-clamp-3 leading-relaxed">${escHtml(cleanText(d.content).slice(0, 600))}</p>
                 </div>
             `).join('');
         }
@@ -1436,9 +1414,9 @@ ${material}`;
 
         function openAdminPanelModal() {
             document.getElementById('adminPanelModal').classList.remove('hidden');
-            document.getElementById('geminiApiKeyInput').value = localStorage.getItem('gemini_api_key') || '';
             document.getElementById('firebaseConfigInput').value = localStorage.getItem('firebase_config') || JSON.stringify(DEFAULT_FIREBASE_CONFIG);
             renderAdminDocsList();
+            renderAdminPapersList();
             window.renderRealtimeScoreboard(localExamResults);
         }
 
@@ -1477,7 +1455,7 @@ ${material}`;
 
                 if (!extractedText.trim()) throw new Error("No text extracted");
 
-                const fullText = extractedText.replace(/\s+/g, ' ').trim();
+                const fullText = cleanText(extractedText);
                 const PART = 150000;
                 const total = Math.ceil(fullText.length / PART);
                 const stamp = Date.now();
@@ -1496,7 +1474,7 @@ ${material}`;
                 saveDocumentsToStorage();
 
                 renderAdminDocsList();
-                statusEl.innerText = "Book scanned & saved! The AI can now read all of it.";
+                statusEl.innerText = "Book saved! The whole text is now searchable.";
                 document.getElementById('uploadTitle').value = '';
                 fileInput.value = '';
 
@@ -1535,12 +1513,6 @@ ${material}`;
                 saveDocumentsToStorage();
                 renderAdminDocsList();
             }
-        }
-
-        function saveApiKey() {
-            const key = document.getElementById('geminiApiKeyInput').value.trim();
-            localStorage.setItem('gemini_api_key', key);
-            alert("Gemini API Key saved.");
         }
 
         async function saveFirebaseConfig() {
