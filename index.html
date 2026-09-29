@@ -862,7 +862,7 @@
         }
 
         function saveDocumentsToStorage() {
-            localStorage.setItem('criminology_docs', JSON.stringify(window.documents));
+            try { localStorage.setItem('criminology_docs', JSON.stringify(window.documents)); } catch (e) { /* book too large for local cache; cloud copy is used */ }
         }
 
         function setFilter(pillar) {
@@ -893,16 +893,82 @@
             document.getElementById('userQuery').value = "What are the essential elements of Robbery with Homicide?";
         }
 
-        function retrieveDocs(query) {
-            const relevantDocs = window.documents.filter(doc => currentPillar === "ALL" || doc.pillar === currentPillar);
-            const queryWords = query.toLowerCase().split(/\s+/).filter(w => w.length > 2);
-            const scored = relevantDocs.map(doc => {
-                const text = (doc.title + " " + doc.content).toLowerCase();
-                return { doc, score: queryWords.filter(w => text.includes(w)).length };
-            }).sort((a, b) => b.score - a.score);
-            let top = scored.slice(0, 4).filter(d => d.score > 0).map(d => d.doc);
-            if (top.length === 0) top = relevantDocs.slice(0, 2);
-            return top;
+        // ---- Book scanning: split every book into passages, rank them against the question ----
+        const STOP = new Set("the and for are was were what which who whom whose when where why how does did with from that this these those into about under over than then them they their have has had not any all can may shall its his her our you your explain define discuss give tell state list enumerate difference between meaning".split(" "));
+        let passageCache = { key: "", list: [] };
+
+        function buildPassages() {
+            const key = window.documents.length + ":" + window.documents.reduce((n, d) => n + d.content.length, 0);
+            if (passageCache.key === key) return passageCache.list;
+            const list = [];
+            window.documents.forEach(d => {
+                const text = d.content.replace(/\s+/g, ' ');
+                const SIZE = 1100, STEP = 900;
+                for (let i = 0; i < text.length; i += STEP) {
+                    let chunk = text.slice(i, i + SIZE);
+                    list.push({ pillar: d.pillar, title: d.title, text: chunk, lower: (d.title + " " + chunk).toLowerCase() });
+                    if (i + SIZE >= text.length) break;
+                }
+            });
+            passageCache = { key, list };
+            return list;
+        }
+
+        function retrievePassages(query, limit = 6) {
+            const pool = buildPassages().filter(p => currentPillar === "ALL" || p.pillar === currentPillar);
+            const words = [...new Set(query.toLowerCase().replace(/[^a-z0-9\s.]/g, ' ').split(/\s+/).filter(w => w.length > 2 && !STOP.has(w)))];
+            if (!words.length || !pool.length) return [];
+            const df = {};
+            words.forEach(w => { df[w] = pool.reduce((n, p) => n + (p.lower.includes(w) ? 1 : 0), 0); });
+            const scored = pool.map(p => {
+                let score = 0;
+                words.forEach(w => {
+                    if (!df[w]) return;
+                    const idf = Math.log(1 + pool.length / df[w]);
+                    const tf = p.lower.split(w).length - 1;
+                    score += idf * Math.min(tf, 4);
+                });
+                // reward passages containing several different query words close together
+                const hits = words.filter(w => p.lower.includes(w)).length;
+                score *= 1 + hits / words.length;
+                return { p, score };
+            }).filter(x => x.score > 0).sort((a, b) => b.score - a.score);
+            return scored.slice(0, limit).map(x => x.p);
+        }
+
+        async function callGemini(systemText, contents) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${getGeminiKey()}`;
+            const base = { systemInstruction: { parts: [{ text: systemText }] }, contents };
+            for (const tools of [[{ google_search: {} }], undefined]) {
+                try {
+                    const res = await fetch(url, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(tools ? { ...base, tools } : base) });
+                    const data = await res.json();
+                    const text = (data.candidates?.[0]?.content?.parts || []).map(p => p.text || '').join('').trim();
+                    if (text) return text;
+                } catch (e) {}
+            }
+            return null;
+        }
+
+        function buildSystemPrompt(passages, followUp) {
+            const material = passages.length
+                ? passages.map((p, i) => `[Excerpt ${i + 1}]\n${p.text}`).join("\n\n")
+                : "(no matching excerpts found)";
+            return `You are the built-in tutor of a Philippine Criminology review website. The user has NO books and can only ask you, so you must do the reading for them.
+
+HOW TO ANSWER
+1. Read the reference excerpts below and find the exact answer to the question. State it directly, in your own clear words. Never paste or quote page text, and never mention page numbers, excerpts, books, documents, or sources.
+2. If the excerpts only partly cover the question, or don't cover it at all, complete the answer from your general knowledge of the topic and what is widely established online (use Google Search when it helps). Give accurate, current Philippine law and practice when the question is about the Philippines. Do not say the material is missing; just answer well.
+3. If the excerpts and general knowledge disagree, prefer the current, correct answer.
+
+FORMAT (strict)
+${followUp ? "This is a follow-up: keep it brief." : ""}
+- Start with '### Short Answer': 1-2 sentences giving the direct answer.
+- Then '### Key Points': 3-6 short bullets ('- '), one idea each, with the key term in **bold**. Use a numbered list only for ordered steps or legal elements.
+- Skip the Key Points section if the Short Answer already says everything. No exam tips, no filler, no restating the question, no long paragraphs, no tables.
+
+Reference excerpts:
+${material}`;
         }
 
         async function handleChat(e) {
@@ -918,30 +984,14 @@
             box.insertAdjacentHTML('beforeend', `<div class="flex"><div id="${id}" class="bg-darkbg border border-cardborder text-gray-200 rounded-2xl rounded-bl-sm px-3 py-2 text-xs sm:text-sm max-w-[92%] leading-relaxed"><i class="fa-solid fa-ellipsis animate-pulse"></i></div></div>`);
             box.scrollTop = box.scrollHeight;
 
-            // Ground each turn in documents retrieved from the (Firebase-synced) repository
-            const docs = retrieveDocs(q + " " + (chatHistory[0]?.parts[0].text || ""));
-            const context = docs.map(d => `Source: ${d.title} (${d.source})\nContent: ${d.content}`).join("\n\n");
-            const sys = `You are a Philippine Criminology Board Exam reviewer. Answer ONLY from the reference material below; if it does not cover the question, say so briefly instead of guessing.\n\nFor follow-ups keep it short: 1-2 sentence answer, then at most 4 bullets ('- ') with bold key terms. Use '### ' headings only if the answer has distinct parts. Never mention documents, sources, or the repository.\n\nReference material:\n${context}`;
-            let reply;
-            try {
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${getGeminiKey()}`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        systemInstruction: { parts: [{ text: sys }] },
-                        contents: [...chatHistory, { role: 'user', parts: [{ text: q }] }]
-                    })
-                });
-                const data = await res.json();
-                reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
-                if (!reply) throw new Error(data.error?.message || 'No response');
-            } catch (err) {
-                reply = synthesizeLocally(q, docs);
+            const lastQ = chatHistory.length ? chatHistory[chatHistory.length - 2]?.parts[0].text : "";
+            const passages = retrievePassages(q + " " + (lastQ || ""));
+            const reply = await callGemini(buildSystemPrompt(passages, true), [...chatHistory, { role: 'user', parts: [{ text: q }] }])
+                || "### Short Answer\nI couldn't reach the AI just now. Please try again in a moment.";
+            if (!reply.startsWith("### Short Answer\nI couldn't")) {
+                chatHistory.push({ role: 'user', parts: [{ text: q }] }, { role: 'model', parts: [{ text: reply }] });
             }
-            chatHistory.push({ role: 'user', parts: [{ text: q }] }, { role: 'model', parts: [{ text: reply }] });
-            const el = document.getElementById(id);
-            el.innerHTML = mdToHtml(reply);
-            el.insertAdjacentHTML('beforeend', ``);
+            document.getElementById(id).innerHTML = mdToHtml(reply);
             box.scrollTop = box.scrollHeight;
         }
 
@@ -957,46 +1007,17 @@
             aiContainer.classList.remove('hidden');
             aiLoading.classList.remove('hidden');
             aiOutput.innerHTML = '';
-
             document.getElementById('chatMessages').innerHTML = '';
             chatHistory = [];
-            const topDocs = retrieveDocs(query);
+            document.getElementById('langSelect').value = 'EN';
 
-            currentSourcesUsed = topDocs;
-            const apiKey = getGeminiKey();
+            const passages = retrievePassages(query);
+            const answer = await callGemini(buildSystemPrompt(passages, false), [{ role: 'user', parts: [{ text: query }] }]);
+            currentAIResponseText = answer || "### Short Answer\nI couldn't reach the AI just now. Please check your connection and try again.";
+            if (answer) chatHistory = [{ role: 'user', parts: [{ text: query }] }, { role: 'model', parts: [{ text: answer }] }];
 
-            if (apiKey) {
-                try {
-                    const contextText = topDocs.map(d => `Source: ${d.title}\nContent: ${d.content}`).join("\n\n");
-                    const prompt = `You are a Philippine Criminology Board Exam reviewer. Answer using the reference material below.\n\nFORMAT RULES (follow strictly): Be concise and skimmable. Never mention documents, sources, context, or the repository. Use exactly this structure with markdown headings: '### Short Answer' (1-2 sentences, the direct answer), '### Key Points' (3-6 short bullets starting with '- ', each one idea, bold the key term), and only if genuinely useful '### Exam Tip' (one sentence). Use numbered lists only for ordered steps or elements. No filler, no repeating the question, no long paragraphs, no tables.\n\nReference material:\n${contextText}\n\nQuestion: ${query}`;
-                    
-                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`, {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-                    });
-                    const data = await res.json();
-                    currentAIResponseText = data.candidates?.[0]?.content?.parts?.[0]?.text || synthesizeLocally(query, topDocs);
-                } catch (err) {
-                    currentAIResponseText = synthesizeLocally(query, topDocs);
-                }
-            } else {
-                await new Promise(r => setTimeout(r, 600));
-                currentAIResponseText = synthesizeLocally(query, topDocs);
-            }
-
-            chatHistory = [{ role: 'user', parts: [{ text: query }] }, { role: 'model', parts: [{ text: currentAIResponseText }] }];
             aiLoading.classList.add('hidden');
             renderFormattedResponse(currentAIResponseText);
-        }
-
-        function synthesizeLocally(query, docs) {
-            if (!docs.length) return "### Short Answer\nNothing in the repository covers this yet. Try another pillar or upload a reviewer for it.";
-            const bullets = docs.map(d => {
-                const sentence = (d.content.match(/[^.!?]+[.!?]/) || [d.content.slice(0, 200)])[0].trim();
-                return `- **${d.title}:** ${sentence}`;
-            }).join('\n');
-            return `### Key Points\n${bullets}\n\n### Exam Tip\nMemorize the elements and the article numbers together.`;
         }
 
         function mdToHtml(text) {
@@ -1355,23 +1376,26 @@
 
                 if (!extractedText.trim()) throw new Error("No text extracted");
 
-                const newDoc = {
-                    id: 'doc-' + Date.now(),
-                    pillar: pillar,
-                    title: title,
-                    content: extractedText.substring(0, 8000),
-                    source: file.name
-                };
-
-                window.documents.unshift(newDoc);
+                const fullText = extractedText.replace(/\s+/g, ' ').trim();
+                const PART = 150000;
+                const total = Math.ceil(fullText.length / PART);
+                const stamp = Date.now();
+                for (let n = 0; n < total; n++) {
+                    const newDoc = {
+                        id: 'doc-' + stamp + '-' + n,
+                        pillar: pillar,
+                        title: total > 1 ? `${title} (part ${n + 1}/${total})` : title,
+                        content: fullText.slice(n * PART, (n + 1) * PART),
+                        source: file.name
+                    };
+                    window.documents.unshift(newDoc);
+                    statusEl.innerText = `Saving to cloud... ${n + 1}/${total}`;
+                    if (window.saveDocToCloud) await window.saveDocToCloud(newDoc);
+                }
                 saveDocumentsToStorage();
 
-                if (window.saveDocToCloud) {
-                    await window.saveDocToCloud(newDoc);
-                }
-
                 renderAdminDocsList();
-                statusEl.innerText = "Document parsed & saved!";
+                statusEl.innerText = "Book scanned & saved! The AI can now read all of it.";
                 document.getElementById('uploadTitle').value = '';
                 fileInput.value = '';
 
