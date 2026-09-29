@@ -187,7 +187,7 @@
                             </div>
                             <div>
                                 <h3 class="font-bold text-white text-sm sm:text-base">AI Legal & Criminology Synthesis</h3>
-                                <p class="text-[11px] sm:text-xs text-gray-400" id="groundedStats">Grounded in repository docs</p>
+                                <p class="text-[11px] sm:text-xs text-gray-400" id="groundedStats">Clear, key points only</p>
                             </div>
                         </div>
 
@@ -214,17 +214,6 @@
                     <div id="aiOutputContent" class="text-gray-200 text-xs sm:text-base leading-relaxed space-y-3 sm:space-y-4">
                         <!-- Populated dynamically -->
                     </div>
-
-                    <!-- Source Citations -->
-                    <div id="sourcesBox" class="mt-4 pt-3 border-t border-cardborder bg-darkbg/50 p-3 sm:p-4 rounded-xl border border-cardborder/60">
-                        <h4 class="text-[11px] sm:text-xs font-bold text-crimson-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                            <i class="fa-solid fa-quote-right"></i> Reference Sources & Grounding
-                        </h4>
-                        <div id="sourcesList" class="text-[11px] sm:text-xs text-gray-400 space-y-1 font-mono">
-                            <!-- Populated dynamically -->
-                        </div>
-                    </div>
-
 
                     <!-- Follow-up Chat -->
                     <div id="chatSection" class="pt-4 border-t border-cardborder space-y-3">
@@ -926,13 +915,13 @@
             const esc = t => t.replace(/&/g,'&amp;').replace(/</g,'&lt;');
             box.insertAdjacentHTML('beforeend', `<div class="flex justify-end"><div class="bg-crimson-900/60 border border-crimson-800 text-white rounded-2xl rounded-br-sm px-3 py-2 text-xs sm:text-sm max-w-[85%]">${esc(q)}</div></div>`);
             const id = 'bot-' + Date.now();
-            box.insertAdjacentHTML('beforeend', `<div class="flex"><div id="${id}" class="bg-darkbg border border-cardborder text-gray-200 rounded-2xl rounded-bl-sm px-3 py-2 text-xs sm:text-sm max-w-[90%]"><i class="fa-solid fa-ellipsis animate-pulse"></i></div></div>`);
+            box.insertAdjacentHTML('beforeend', `<div class="flex"><div id="${id}" class="bg-darkbg border border-cardborder text-gray-200 rounded-2xl rounded-bl-sm px-3 py-2 text-xs sm:text-sm max-w-[92%] leading-relaxed"><i class="fa-solid fa-ellipsis animate-pulse"></i></div></div>`);
             box.scrollTop = box.scrollHeight;
 
             // Ground each turn in documents retrieved from the (Firebase-synced) repository
             const docs = retrieveDocs(q + " " + (chatHistory[0]?.parts[0].text || ""));
             const context = docs.map(d => `Source: ${d.title} (${d.source})\nContent: ${d.content}`).join("\n\n");
-            const sys = `You are a Philippine Criminology Board Exam reviewer. Answer ONLY using the repository documents below. If they don't cover the question, say so plainly instead of guessing.\n\nDocuments:\n${context}`;
+            const sys = `You are a Philippine Criminology Board Exam reviewer. Answer ONLY from the reference material below; if it does not cover the question, say so briefly instead of guessing.\n\nFor follow-ups keep it short: 1-2 sentence answer, then at most 4 bullets ('- ') with bold key terms. Use '### ' headings only if the answer has distinct parts. Never mention documents, sources, or the repository.\n\nReference material:\n${context}`;
             let reply;
             try {
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${getGeminiKey()}`, {
@@ -951,8 +940,8 @@
             }
             chatHistory.push({ role: 'user', parts: [{ text: q }] }, { role: 'model', parts: [{ text: reply }] });
             const el = document.getElementById(id);
-            el.innerHTML = esc(reply).replace(/### (.*)/g,'<strong class="text-crimson-500">$1</strong>').replace(/\*\*(.*?)\*\*/g,'<strong class="text-white">$1</strong>').replace(/\n/g,'<br>');
-            el.insertAdjacentHTML('beforeend', `<div class="mt-2 text-[10px] text-gray-500 font-mono">Sources: ${docs.map(d => esc(d.title)).join(' · ')}</div>`);
+            el.innerHTML = mdToHtml(reply);
+            el.insertAdjacentHTML('beforeend', ``);
             box.scrollTop = box.scrollHeight;
         }
 
@@ -964,12 +953,10 @@
             const aiContainer = document.getElementById('aiResponseContainer');
             const aiLoading = document.getElementById('aiLoading');
             const aiOutput = document.getElementById('aiOutputContent');
-            const sourcesList = document.getElementById('sourcesList');
 
             aiContainer.classList.remove('hidden');
             aiLoading.classList.remove('hidden');
             aiOutput.innerHTML = '';
-            sourcesList.innerHTML = '';
 
             document.getElementById('chatMessages').innerHTML = '';
             chatHistory = [];
@@ -981,7 +968,7 @@
             if (apiKey) {
                 try {
                     const contextText = topDocs.map(d => `Source: ${d.title}\nContent: ${d.content}`).join("\n\n");
-                    const prompt = `You are a Philippine Criminology Legal Expert & Board Exam Reviewer. Answer the following question based on the provided context.\n\nContext:\n${contextText}\n\nQuestion: ${query}\n\nProvide a detailed, clear answer with legal references.`;
+                    const prompt = `You are a Philippine Criminology Board Exam reviewer. Answer using the reference material below.\n\nFORMAT RULES (follow strictly): Be concise and skimmable. Never mention documents, sources, context, or the repository. Use exactly this structure with markdown headings: '### Short Answer' (1-2 sentences, the direct answer), '### Key Points' (3-6 short bullets starting with '- ', each one idea, bold the key term), and only if genuinely useful '### Exam Tip' (one sentence). Use numbered lists only for ordered steps or elements. No filler, no repeating the question, no long paragraphs, no tables.\n\nReference material:\n${contextText}\n\nQuestion: ${query}`;
                     
                     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`, {
                         method: 'POST',
@@ -1001,44 +988,49 @@
             chatHistory = [{ role: 'user', parts: [{ text: query }] }, { role: 'model', parts: [{ text: currentAIResponseText }] }];
             aiLoading.classList.add('hidden');
             renderFormattedResponse(currentAIResponseText);
-            renderSources(topDocs);
         }
 
         function synthesizeLocally(query, docs) {
-            if (docs.length === 0) {
-                return "No exact legal document found in repository for this specific pillar scope.";
-            }
+            if (!docs.length) return "### Short Answer\nNothing in the repository covers this yet. Try another pillar or upload a reviewer for it.";
+            const bullets = docs.map(d => {
+                const sentence = (d.content.match(/[^.!?]+[.!?]/) || [d.content.slice(0, 200)])[0].trim();
+                return `- **${d.title}:** ${sentence}`;
+            }).join('\n');
+            return `### Key Points\n${bullets}\n\n### Exam Tip\nMemorize the elements and the article numbers together.`;
+        }
 
-            let response = `### Key Legal Analysis & Synthesis\n\nBased on the Philippine Criminology codals and reviewers in our system:\n\n`;
-            docs.forEach(d => {
-                response += `**• ${d.title} (${d.source}):**\n${d.content}\n\n`;
-            });
-            response += `\n**Board Exam Key Takeaway:** Always ensure strict compliance with legal elements and procedural requirements.`;
-            return response;
+        function mdToHtml(text) {
+            const esc = t => t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            const inline = t => esc(t)
+                .replace(/\*\*(.+?)\*\*/g,'<strong class="text-white font-semibold">$1</strong>')
+                .replace(/(^|[^*])\*(?!\s)(.+?)\*(?!\*)/g,'$1<em class="text-gray-300">$2</em>');
+            const out = []; let list = null;
+            const close = () => { if (list) { out.push(list === 'ul' ? '</ul>' : '</ol>'); list = null; } };
+            for (const raw of text.split('\n')) {
+                const line = raw.trim();
+                if (!line) { close(); continue; }
+                let m;
+                if ((m = line.match(/^#{1,4}\s+(.*)/))) {
+                    close();
+                    out.push(`<h3 class="flex items-center gap-2 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-crimson-500 mt-6 first:mt-0 mb-2"><span class="w-1 h-4 rounded bg-crimson-600"></span>${inline(m[1].replace(/\*\*/g,''))}</h3>`);
+                } else if ((m = line.match(/^[-*•]\s+(.*)/))) {
+                    if (list !== 'ul') { close(); out.push('<ul class="space-y-2 my-1">'); list = 'ul'; }
+                    out.push(`<li class="flex gap-2.5"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-crimson-600 shrink-0"></span><span>${inline(m[1])}</span></li>`);
+                } else if ((m = line.match(/^(\d+)[.)]\s+(.*)/))) {
+                    if (list !== 'ol') { close(); out.push('<ol class="space-y-2 my-1">'); list = 'ol'; }
+                    out.push(`<li class="flex gap-2.5"><span class="w-5 h-5 rounded-full bg-crimson-950 border border-crimson-800 text-crimson-500 text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">${m[1]}</span><span>${inline(m[2])}</span></li>`);
+                } else {
+                    close();
+                    out.push(`<p class="my-1">${inline(line)}</p>`);
+                }
+            }
+            close();
+            return out.join('');
         }
 
         function renderFormattedResponse(text) {
-            const aiOutput = document.getElementById('aiOutputContent');
-            let formatted = text
-                .replace(/### (.*)/g, '<h3 class="text-base sm:text-lg font-bold text-crimson-500 mt-2 mb-1">$1</h3>')
-                .replace(/\*\*(.*?)\*\*/g, '<strong class="text-white">$1</strong>')
-                .replace(/\n/g, '<br>');
-            aiOutput.innerHTML = `<div class="bg-darkbg/40 p-3 sm:p-4 rounded-xl border border-cardborder">${formatted}</div>`;
-        }
-
-        function renderSources(docs) {
-            const sourcesList = document.getElementById('sourcesList');
-            if (docs.length === 0) {
-                sourcesList.innerHTML = `<div>No specific docs matched. General pillar guidance used.</div>`;
-                return;
-            }
-            sourcesList.innerHTML = docs.map(d => `
-                <div class="flex flex-wrap items-center gap-1 sm:gap-2">
-                    <span class="text-crimson-500 font-bold">[${d.pillar}]</span>
-                    <span class="text-gray-300 font-medium">${d.title}</span>
-                    <span class="text-gray-600">(${d.source})</span>
-                </div>
-            `).join('');
+            document.getElementById('aiOutputContent').innerHTML =
+                `<div class="bg-darkbg/40 p-4 sm:p-6 rounded-2xl border border-cardborder text-sm sm:text-[15px] leading-relaxed sm:leading-7 text-gray-300 max-w-none">${mdToHtml(text)}</div>`;
         }
 
         // --- EXAM ENGINE & REALTIME RESULT TRANSMISSION ---
@@ -1234,7 +1226,7 @@
             const apiKey = getGeminiKey();
             if (apiKey) {
                 try {
-                    const prompt = `Translate the following legal text into ${targetLang === 'TAG' ? 'Tagalog' : 'Bisaya/Cebuano'}:\n\n${currentAIResponseText}`;
+                    const prompt = `Translate the following into ${targetLang === 'TAG' ? 'Tagalog' : 'Bisaya/Cebuano'}. Keep the exact markdown structure (### headings, - bullets, **bold**) and keep legal terms and article numbers as-is:\n\n${currentAIResponseText}`;
                     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`, {
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},
