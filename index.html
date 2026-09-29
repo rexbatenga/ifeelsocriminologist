@@ -79,19 +79,13 @@
                     <i class="fa-solid text-base sm:text-lg">⚖️</i>
                 </div>
                 <div class="truncate">
-                    <span class="text-base sm:text-lg font-bold tracking-tight text-white block leading-tight truncate">IFeelSo<span class="text-crimson-600">Criminologist</span></span>
+                    <span class="text-base sm:text-lg font-bold tracking-tight text-white block leading-tight truncate">IFeelSo<span class="text-crimson-600">Criminologist</span>RightNow</span>
                     <span class="text-[10px] sm:text-xs text-gray-400 font-mono hidden xs:block">PH Board Exam AI Assistant</span>
                 </div>
             </div>
 
             <!-- Desktop & Mobile Quick Header Actions -->
             <div class="flex items-center space-x-2 sm:space-x-3">
-                <!-- Active User Badge -->
-                <div class="text-[11px] sm:text-xs px-2 sm:px-2.5 py-1 bg-darkbg border border-cardborder text-emerald-400 rounded-full font-mono flex items-center gap-1.5" title="Live Users Connected">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping shrink-0"></span>
-                    <span id="activeUserCountHeader">1</span> <span class="hidden sm:inline">Online</span>
-                </div>
-
                 <!-- Desktop Nav Buttons -->
                 <div class="hidden md:flex items-center space-x-2">
                     <button onclick="switchTab('quiz')" class="text-xs sm:text-sm px-3 py-1.5 rounded-xl bg-crimson-950 hover:bg-crimson-900 text-crimson-400 border border-crimson-800 transition flex items-center gap-2 font-medium">
@@ -109,9 +103,10 @@
                     <i class="fa-solid fa-bars text-lg"></i>
                 </button>
 
+                <!-- Admin Status Badge (Only visible when logged in as Admin) -->
                 <div id="adminBadge" class="hidden">
                     <span class="text-[10px] sm:text-xs px-2 sm:px-2.5 py-1 bg-crimson-950 text-crimson-500 border border-crimson-800 rounded-full font-mono flex items-center gap-1">
-                        <span class="w-1.5 h-1.5 rounded-full bg-crimson-600 animate-pulse"></span> ADMIN
+                        <span class="w-1.5 h-1.5 rounded-full bg-crimson-600 animate-pulse"></span> ADMIN MODE
                     </span>
                 </div>
             </div>
@@ -137,23 +132,23 @@
         <!-- SEARCH / SYNTHESIS VIEW (DEFAULT) -->
         <div id="viewSearch" class="space-y-6 sm:space-y-8">
             <!-- Hero / Pillar Selector -->
-            <div class="text-center max-w-3xl mx-auto space-y-3 sm:space-y-4">
+            <div class="text-center max-w-4xl mx-auto space-y-4">
                 <h1 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
                     Criminology Legal & Science <span class="text-crimson-600">Knowledge Engine</span>
                 </h1>
-                <p class="text-xs sm:text-base text-gray-400 px-2">
+                <p class="text-xs sm:text-base text-gray-400 px-2 max-w-2xl mx-auto">
                     Ask questions regarding Criminal Law, Jurisprudence, Forensic Science, or Law Enforcement grounded directly in Philippine Board Reviewers.
                 </p>
                 
-                <!-- Pillar Quick Filters (Horizontally Scrollable on Mobile) -->
-                <div class="flex overflow-x-auto no-scrollbar py-2 gap-2 sm:justify-center -mx-3 px-3 sm:mx-0">
-                    <button onclick="setFilter('ALL')" class="pillar-btn text-xs px-3.5 py-2 rounded-full border border-crimson-600 bg-crimson-600 text-white font-medium shrink-0" data-pillar="ALL">All 6 Pillars</button>
-                    <button onclick="setFilter('CLJ')" class="pillar-btn text-xs px-3.5 py-2 rounded-full border border-cardborder bg-cardbg text-gray-400 hover:border-crimson-600 shrink-0" data-pillar="CLJ">1. Criminal Law Jurisprudence</button>
-                    <button onclick="setFilter('LEA')" class="pillar-btn text-xs px-3.5 py-2 rounded-full border border-cardborder bg-cardbg text-gray-400 hover:border-crimson-600 shrink-0" data-pillar="LEA">2. Law Enforcement Admin</button>
-                    <button onclick="setFilter('CDI')" class="pillar-btn text-xs px-3.5 py-2 rounded-full border border-cardborder bg-cardbg text-gray-400 hover:border-crimson-600 shrink-0" data-pillar="CDI">3. Crime Detection & Invest.</button>
-                    <button onclick="setFilter('FS')" class="pillar-btn text-xs px-3.5 py-2 rounded-full border border-cardborder bg-cardbg text-gray-400 hover:border-crimson-600 shrink-0" data-pillar="FS">4. Forensic Science</button>
-                    <button onclick="setFilter('CA')" class="pillar-btn text-xs px-3.5 py-2 rounded-full border border-cardborder bg-cardbg text-gray-400 hover:border-crimson-600 shrink-0" data-pillar="CA">5. Correctional Admin</button>
-                    <button onclick="setFilter('CRIM')" class="pillar-btn text-xs px-3.5 py-2 rounded-full border border-cardborder bg-cardbg text-gray-400 hover:border-crimson-600 shrink-0" data-pillar="CRIM">6. Criminology / Sociology</button>
+                <!-- Fixed Responsive Wrap Area Tabs (Prevents UI Cut-off) -->
+                <div class="flex flex-wrap items-center justify-center gap-2 pt-2 pb-1 px-1">
+                    <button onclick="setFilter('ALL')" class="pillar-btn text-xs px-3.5 py-2 rounded-full border border-crimson-600 bg-crimson-600 text-white font-medium transition" data-pillar="ALL">All 6 Pillars</button>
+                    <button onclick="setFilter('CLJ')" class="pillar-btn text-xs px-3.5 py-2 rounded-full border border-cardborder bg-cardbg text-gray-400 hover:border-crimson-600 transition" data-pillar="CLJ">1. Criminal Law Jurisprudence</button>
+                    <button onclick="setFilter('LEA')" class="pillar-btn text-xs px-3.5 py-2 rounded-full border border-cardborder bg-cardbg text-gray-400 hover:border-crimson-600 transition" data-pillar="LEA">2. Law Enforcement Admin</button>
+                    <button onclick="setFilter('CDI')" class="pillar-btn text-xs px-3.5 py-2 rounded-full border border-cardborder bg-cardbg text-gray-400 hover:border-crimson-600 transition" data-pillar="CDI">3. Crime Detection & Invest.</button>
+                    <button onclick="setFilter('FS')" class="pillar-btn text-xs px-3.5 py-2 rounded-full border border-cardborder bg-cardbg text-gray-400 hover:border-crimson-600 transition" data-pillar="FS">4. Forensic Science</button>
+                    <button onclick="setFilter('CA')" class="pillar-btn text-xs px-3.5 py-2 rounded-full border border-cardborder bg-cardbg text-gray-400 hover:border-crimson-600 transition" data-pillar="CA">5. Correctional Admin</button>
+                    <button onclick="setFilter('CRIM')" class="pillar-btn text-xs px-3.5 py-2 rounded-full border border-cardborder bg-cardbg text-gray-400 hover:border-crimson-600 transition" data-pillar="CRIM">6. Criminology / Sociology</button>
                 </div>
             </div>
 
@@ -228,6 +223,20 @@
                         <div id="sourcesList" class="text-[11px] sm:text-xs text-gray-400 space-y-1 font-mono">
                             <!-- Populated dynamically -->
                         </div>
+                    </div>
+
+
+                    <!-- Follow-up Chat -->
+                    <div id="chatSection" class="pt-4 border-t border-cardborder space-y-3">
+                        <h4 class="text-[11px] sm:text-xs font-bold text-crimson-500 uppercase tracking-wider flex items-center gap-1.5">
+                            <i class="fa-solid fa-comments"></i> Ask Follow-up Questions
+                        </h4>
+                        <div id="chatMessages" class="space-y-3 max-h-[28rem] overflow-y-auto pr-1"></div>
+                        <form onsubmit="handleChat(event)" class="flex gap-2">
+                            <input type="text" id="chatInput" placeholder="Ask a follow-up about the documents..." autocomplete="off" required
+                                class="flex-1 bg-darkbg border border-cardborder focus:border-crimson-600 rounded-xl px-3 text-xs sm:text-sm text-white outline-none" />
+                            <button type="submit" id="chatSendBtn" class="px-4 bg-crimson-600 hover:bg-crimson-700 text-white rounded-xl transition shrink-0"><i class="fa-solid fa-paper-plane"></i></button>
+                        </form>
                     </div>
 
                 </div>
@@ -438,7 +447,9 @@
                         <i class="fa-solid fa-chart-line text-crimson-500"></i> Realtime Exam Scores & Active Users
                     </h3>
                     <div class="flex items-center gap-3">
-                        <span class="text-[11px] sm:text-xs font-mono text-emerald-400 bg-emerald-950/60 border border-emerald-800/80 px-2.5 py-1 rounded-lg">
+                        <!-- ACTIVE USERS (EXCLUSIVE TO ADMIN PANEL) -->
+                        <span class="text-[11px] sm:text-xs font-mono text-emerald-400 bg-emerald-950/60 border border-emerald-800/80 px-2.5 py-1 rounded-lg flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping shrink-0"></span>
                             <i class="fa-solid fa-users"></i> Online: <span id="adminActiveUsers">1</span>
                         </span>
                         <button onclick="clearRealtimeResults()" class="text-[11px] text-gray-500 hover:text-crimson-500 underline">Clear Log</button>
@@ -552,8 +563,9 @@
     <!-- Official Firebase JS SDK Modules -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, setDoc, doc, deleteDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, setDoc, doc, deleteDoc, onSnapshot, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+        const COL = "ifscrn";
         const userId = "user_" + Math.random().toString(36).substring(2, 9);
 
         window.initFirebaseSystem = async function(configJSON) {
@@ -578,18 +590,18 @@
 
         async function setupUserPresence() {
             if (!window.db) return;
-            const presenceRef = doc(window.db, "active_users", userId);
+            const presenceRef = doc(window.db, COL, "presence_" + userId);
 
             const sendPing = async () => {
                 try {
-                    await setDoc(presenceRef, { lastPing: Date.now() }, { merge: true });
+                    await setDoc(presenceRef, { kind: "presence", lastPing: Date.now() }, { merge: true });
                 } catch (e) {}
             };
 
             await sendPing();
             setInterval(sendPing, 10000);
 
-            onSnapshot(collection(window.db, "active_users"), (snapshot) => {
+            onSnapshot(query(collection(window.db, COL), where("kind", "==", "presence")), (snapshot) => {
                 const now = Date.now();
                 let activeCount = 0;
                 snapshot.forEach(docSnap => {
@@ -599,14 +611,15 @@
                     }
                 });
                 const finalCount = Math.max(1, activeCount);
-                document.getElementById('activeUserCountHeader').innerText = finalCount;
-                document.getElementById('adminActiveUsers').innerText = finalCount;
+                // Active count only updated in Admin Panel element
+                const adminCounter = document.getElementById('adminActiveUsers');
+                if (adminCounter) adminCounter.innerText = finalCount;
             });
         }
 
         function listenToRealtimeExamResults() {
             if (!window.db) return;
-            const q = query(collection(window.db, "exam_results"));
+            const q = query(collection(window.db, COL), where("kind", "==", "exam"));
             onSnapshot(q, (snapshot) => {
                 const results = [];
                 snapshot.forEach(docSnap => {
@@ -621,8 +634,9 @@
             if (window.db) {
                 try {
                     const docId = "exam_" + Date.now();
-                    await setDoc(doc(window.db, "exam_results", docId), {
+                    await setDoc(doc(window.db, COL, docId), {
                         ...examData,
+                        kind: "exam",
                         timestamp: Date.now()
                     });
                 } catch (err) {
@@ -634,7 +648,7 @@
         window.syncFirebaseDocs = async function() {
             if (!window.db) return false;
             try {
-                const querySnapshot = await getDocs(collection(window.db, "criminology_docs"));
+                const querySnapshot = await getDocs(query(collection(window.db, COL), where("kind", "==", "doc")));
                 const cloudDocs = [];
                 querySnapshot.forEach((docSnap) => {
                     cloudDocs.push({ id: docSnap.id, ...docSnap.data() });
@@ -652,7 +666,7 @@
         window.saveDocToCloud = async function(newDoc) {
             if (!window.db) return false;
             try {
-                await setDoc(doc(window.db, "criminology_docs", newDoc.id), newDoc);
+                await setDoc(doc(window.db, COL, newDoc.id), { ...newDoc, kind: "doc" });
                 return true;
             } catch (err) { return false; }
         };
@@ -660,7 +674,7 @@
         window.deleteDocFromCloud = async function(id) {
             if (!window.db) return false;
             try {
-                await deleteDoc(doc(window.db, "criminology_docs", id));
+                await deleteDoc(doc(window.db, COL, id));
                 return true;
             } catch (err) { return false; }
         };
@@ -800,6 +814,18 @@
         let currentAIResponseText = "";
         let currentSourcesUsed = [];
         const ADMIN_PASS = "Rex61103!";
+        const DEFAULT_FIREBASE_CONFIG = {
+            apiKey: "AIzaSyCp41jeesWvZdpSrL63WA2ddxK4E9FEjGI",
+            authDomain: "cheemscraft-6113.firebaseapp.com",
+            databaseURL: "https://cheemscraft-6113-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "cheemscraft-6113",
+            storageBucket: "cheemscraft-6113.firebasestorage.app",
+            messagingSenderId: "72934652173",
+            appId: "1:72934652173:web:6c18f2c1f9b8acdbdd9844"
+        };
+        const DEFAULT_GEMINI_KEY = "AQ.Ab8RN6L5VCs4VBYhAQ2jkmGTs_yqbZBBPZAfXhlK2O0aOg5spw";
+        const getGeminiKey = () => localStorage.getItem('gemini_api_key') || DEFAULT_GEMINI_KEY;
+        let chatHistory = [];
 
         let quizQuestions = [];
         let currentQuestionIdx = 0;
@@ -808,8 +834,8 @@
         let localExamResults = [];
 
         window.addEventListener('DOMContentLoaded', async () => {
-            const savedFirebaseConfig = localStorage.getItem('firebase_config');
-            if (savedFirebaseConfig && window.initFirebaseSystem) {
+            const savedFirebaseConfig = localStorage.getItem('firebase_config') || JSON.stringify(DEFAULT_FIREBASE_CONFIG);
+            if (window.initFirebaseSystem) {
                 await window.initFirebaseSystem(savedFirebaseConfig);
             }
 
@@ -878,6 +904,58 @@
             document.getElementById('userQuery').value = "What are the essential elements of Robbery with Homicide?";
         }
 
+        function retrieveDocs(query) {
+            const relevantDocs = window.documents.filter(doc => currentPillar === "ALL" || doc.pillar === currentPillar);
+            const queryWords = query.toLowerCase().split(/\s+/).filter(w => w.length > 2);
+            const scored = relevantDocs.map(doc => {
+                const text = (doc.title + " " + doc.content).toLowerCase();
+                return { doc, score: queryWords.filter(w => text.includes(w)).length };
+            }).sort((a, b) => b.score - a.score);
+            let top = scored.slice(0, 4).filter(d => d.score > 0).map(d => d.doc);
+            if (top.length === 0) top = relevantDocs.slice(0, 2);
+            return top;
+        }
+
+        async function handleChat(e) {
+            e.preventDefault();
+            const input = document.getElementById('chatInput');
+            const q = input.value.trim();
+            if (!q) return;
+            input.value = '';
+            const box = document.getElementById('chatMessages');
+            const esc = t => t.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+            box.insertAdjacentHTML('beforeend', `<div class="flex justify-end"><div class="bg-crimson-900/60 border border-crimson-800 text-white rounded-2xl rounded-br-sm px-3 py-2 text-xs sm:text-sm max-w-[85%]">${esc(q)}</div></div>`);
+            const id = 'bot-' + Date.now();
+            box.insertAdjacentHTML('beforeend', `<div class="flex"><div id="${id}" class="bg-darkbg border border-cardborder text-gray-200 rounded-2xl rounded-bl-sm px-3 py-2 text-xs sm:text-sm max-w-[90%]"><i class="fa-solid fa-ellipsis animate-pulse"></i></div></div>`);
+            box.scrollTop = box.scrollHeight;
+
+            // Ground each turn in documents retrieved from the (Firebase-synced) repository
+            const docs = retrieveDocs(q + " " + (chatHistory[0]?.parts[0].text || ""));
+            const context = docs.map(d => `Source: ${d.title} (${d.source})\nContent: ${d.content}`).join("\n\n");
+            const sys = `You are a Philippine Criminology Board Exam reviewer. Answer ONLY using the repository documents below. If they don't cover the question, say so plainly instead of guessing.\n\nDocuments:\n${context}`;
+            let reply;
+            try {
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${getGeminiKey()}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        systemInstruction: { parts: [{ text: sys }] },
+                        contents: [...chatHistory, { role: 'user', parts: [{ text: q }] }]
+                    })
+                });
+                const data = await res.json();
+                reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (!reply) throw new Error(data.error?.message || 'No response');
+            } catch (err) {
+                reply = synthesizeLocally(q, docs);
+            }
+            chatHistory.push({ role: 'user', parts: [{ text: q }] }, { role: 'model', parts: [{ text: reply }] });
+            const el = document.getElementById(id);
+            el.innerHTML = esc(reply).replace(/### (.*)/g,'<strong class="text-crimson-500">$1</strong>').replace(/\*\*(.*?)\*\*/g,'<strong class="text-white">$1</strong>').replace(/\n/g,'<br>');
+            el.insertAdjacentHTML('beforeend', `<div class="mt-2 text-[10px] text-gray-500 font-mono">Sources: ${docs.map(d => esc(d.title)).join(' · ')}</div>`);
+            box.scrollTop = box.scrollHeight;
+        }
+
         async function handleSearch(e) {
             e.preventDefault();
             const query = document.getElementById('userQuery').value.trim();
@@ -893,24 +971,12 @@
             aiOutput.innerHTML = '';
             sourcesList.innerHTML = '';
 
-            let relevantDocs = window.documents.filter(doc => currentPillar === "ALL" || doc.pillar === currentPillar);
-            
-            const queryWords = query.toLowerCase().split(/\s+/).filter(w => w.length > 2);
-            let scoredDocs = relevantDocs.map(doc => {
-                let score = 0;
-                const text = (doc.title + " " + doc.content).toLowerCase();
-                queryWords.forEach(word => {
-                    if (text.includes(word)) score += 1;
-                });
-                return { doc, score };
-            });
-
-            scoredDocs.sort((a, b) => b.score - a.score);
-            let topDocs = scoredDocs.slice(0, 3).filter(d => d.score > 0).map(d => d.doc);
-            if (topDocs.length === 0) topDocs = relevantDocs.slice(0, 2);
+            document.getElementById('chatMessages').innerHTML = '';
+            chatHistory = [];
+            const topDocs = retrieveDocs(query);
 
             currentSourcesUsed = topDocs;
-            const apiKey = localStorage.getItem('gemini_api_key') || "";
+            const apiKey = getGeminiKey();
 
             if (apiKey) {
                 try {
@@ -932,6 +998,7 @@
                 currentAIResponseText = synthesizeLocally(query, topDocs);
             }
 
+            chatHistory = [{ role: 'user', parts: [{ text: query }] }, { role: 'model', parts: [{ text: currentAIResponseText }] }];
             aiLoading.classList.add('hidden');
             renderFormattedResponse(currentAIResponseText);
             renderSources(topDocs);
@@ -1164,7 +1231,7 @@
 
             aiOutput.innerHTML = `<div class="text-xs text-crimson-400 font-mono animate-pulse">Translating into ${targetLang === 'TAG' ? 'Tagalog' : 'Bisaya'}...</div>`;
 
-            const apiKey = localStorage.getItem('gemini_api_key') || "";
+            const apiKey = getGeminiKey();
             if (apiKey) {
                 try {
                     const prompt = `Translate the following legal text into ${targetLang === 'TAG' ? 'Tagalog' : 'Bisaya/Cebuano'}:\n\n${currentAIResponseText}`;
@@ -1256,7 +1323,7 @@
         function openAdminPanelModal() {
             document.getElementById('adminPanelModal').classList.remove('hidden');
             document.getElementById('geminiApiKeyInput').value = localStorage.getItem('gemini_api_key') || '';
-            document.getElementById('firebaseConfigInput').value = localStorage.getItem('firebase_config') || '';
+            document.getElementById('firebaseConfigInput').value = localStorage.getItem('firebase_config') || JSON.stringify(DEFAULT_FIREBASE_CONFIG);
             renderAdminDocsList();
             window.renderRealtimeScoreboard(localExamResults);
         }
@@ -1300,7 +1367,7 @@
                     id: 'doc-' + Date.now(),
                     pillar: pillar,
                     title: title,
-                    content: extractedText.substring(0, 1500),
+                    content: extractedText.substring(0, 8000),
                     source: file.name
                 };
 
