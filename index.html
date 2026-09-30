@@ -908,18 +908,43 @@
         const STOP = new Set("the and for are was were what which who whom whose when where why how does did with from that this these those into about under over than then them they their have has had not any all can may shall its his her our you your explain define discuss give tell state list enumerate difference between meaning".split(" "));
         let passageCache = { key: "", list: [] };
 
+        // Removes list markers ("f.", "(a)", "-", "•") and stray single letters left at the start of a line
+        const cutMarker = u => u
+            .replace(/^(?:[-–—•●▪✓*]\s+|\(?[A-Za-z][.)]\s+(?=[A-Z0-9"“(])|\(?[ivxIVX]{1,4}[.)]\s+(?=[A-Z]))/, '')
+            .replace(/^(?![AI]\s)[A-Za-z]\s+(?=[A-Z][a-z])/, '')
+            .trim();
+
+        // Turns a stored part into whole sentences/lines only: cut-off starts and ends of a part are dropped
+        function textUnits(raw) {
+            const lines = String(raw).split('\n').map(cleanText).filter(Boolean);
+            if (!lines.length) return [];
+            lines[0] = lines[0].replace(/^[a-z][^.!?]*[.!?]\s+(?=[A-Za-z0-9"“(])/, '');
+            const last = lines.length - 1;
+            if (!/[.!?:;)"”]$/.test(lines[last])) lines[last] = lines[last].replace(/(?<=[.!?])[^.!?]{0,400}$/, '');
+            const units = [];
+            lines.flatMap(l => l.split(/(?<=[.!?])\s+(?=[A-Z0-9"“(])/)).map(cutMarker).forEach(u => {
+                while (u.length > 1600) {           // extremely long run-ons: break at a word boundary
+                    let cut = u.lastIndexOf(' ', 1500);
+                    units.push(u.slice(0, cut)); u = u.slice(cut + 1);
+                }
+                if (u.length >= 12) units.push(u);
+            });
+            return units;
+        }
+
         function buildPassages() {
             const key = window.documents.length + ":" + window.documents.reduce((n, d) => n + d.content.length, 0);
             if (passageCache.key === key) return passageCache.list;
             const list = [];
             window.documents.forEach(d => {
-                const text = cleanText(d.content);
-                const SIZE = 1100, STEP = 900;
-                for (let i = 0; i < text.length; i += STEP) {
-                    let chunk = text.slice(i, i + SIZE);
-                    list.push({ pillar: d.pillar, title: d.title, text: chunk, lower: (d.title + " " + chunk).toLowerCase() });
-                    if (i + SIZE >= text.length) break;
-                }
+                const units = textUnits(d.content);
+                let cur = [], len = 0, fresh = 0;
+                const flush = () => { if (fresh) { const text = cur.join('\n'); list.push({ pillar: d.pillar, title: d.title, text, lower: (d.title + " " + text).toLowerCase() }); } };
+                units.forEach(u => {
+                    cur.push(u); len += u.length + 1; fresh++;
+                    if (len >= 1000) { flush(); cur = cur.slice(-1); len = cur[0].length + 1; fresh = 0; }
+                });
+                flush();
             });
             passageCache = { key, list };
             return list;
@@ -962,12 +987,18 @@
         const clip = (t, n) => t.length > n ? t.slice(0, n).replace(/\s+\S*$/, '') + '…' : t;
         const getWords = q => [...new Set(q.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length > 2 && !STOP.has(w)))];
         function splitSentences(text) {
-            return text.replace(/\s+/g, ' ').split(/(?<=[.!?])\s+(?=[A-Z0-9"“(])/).map(t => t.trim()).filter(t => t.length >= 25);
+            return String(text).split('\n').flatMap(l => l.replace(/\s+/g, ' ').split(/(?<=[.!?])\s+(?=[A-Z0-9"“(])/)).map(t => t.trim()).filter(t => t.length >= 25);
         }
+        // Ultra-minimal: at most the 2 longest search words, first occurrence only, very faint tint
         function highlight(text, words) {
-            const h = escHtml(text);
-            if (!words.length) return h;
-            return h.replace(new RegExp('\\b(' + words.join('|') + ')', 'gi'), '<mark class="bg-crimson-900/70 text-white rounded px-0.5">$1</mark>');
+            const plain = escHtml(text);
+            const keys = [...words].filter(w => w.length >= 4).sort((a, b) => b.length - a.length).slice(0, 2);
+            const ranges = [];
+            keys.forEach(w => { const m = new RegExp('\\b' + w, 'i').exec(plain); if (m) ranges.push([m.index, m.index + m[0].length]); });
+            ranges.sort((a, b) => a[0] - b[0]);
+            let out = '', pos = 0;
+            ranges.forEach(([a, b]) => { if (a < pos) return; out += plain.slice(pos, a) + '<span class="bg-crimson-900/25 rounded-sm">' + plain.slice(a, b) + '</span>'; pos = b; });
+            return out + plain.slice(pos);
         }
         const DEFINING = /\b(is|are|refers? to|means?|defined as|shall|penalt(y|ies)|penalized|elements?)\b/i;
         function scoreSentence(s, words) {
@@ -1000,7 +1031,7 @@
                 html += sectionHead('Short Answer');
                 html += top.length
                     ? `<div class="border-l-2 border-crimson-600 pl-3 sm:pl-4 text-gray-100 leading-7">${highlight(top.join(' '), words)}</div>`
-                    : `<div class="border-l-2 border-crimson-600 pl-3 sm:pl-4 text-gray-100 leading-7">${highlight(clip(best.text, 400), words)}</div>`;
+                    : `<div class="border-l-2 border-crimson-600 pl-3 sm:pl-4 text-gray-100 leading-7">${highlight(clip(best.text.replace(/\n/g, ' '), 400), words)}</div>`;
 
                 const need = Math.max(1, Math.ceil(words.length / 2));
                 const seen = new Set();
@@ -1013,7 +1044,7 @@
                 if (points.length) {
                     html += sectionHead('Key Points');
                     html += `<ul class="space-y-2.5">` + points.slice(0, 5).map(x =>
-                        `<li class="flex gap-2.5"><span class="mt-2.5 w-1.5 h-1.5 rounded-full bg-crimson-600 shrink-0"></span><span>${highlight(clip(x.s, 300), words)}</span></li>`).join('') + `</ul>`;
+                        `<li class="flex gap-2.5"><span class="mt-2.5 w-1.5 h-1.5 rounded-full bg-crimson-600 shrink-0"></span><span>${escHtml(clip(x.s, 300))}</span></li>`).join('') + `</ul>`;
                 }
             }
             document.getElementById('aiOutputContent').innerHTML =
@@ -1455,16 +1486,27 @@
 
                 if (!extractedText.trim()) throw new Error("No text extracted");
 
-                const fullText = cleanText(extractedText);
+                const fullText = extractedText.split('\n').map(cleanText).filter(Boolean).join('\n');
                 const PART = 150000;
-                const total = Math.ceil(fullText.length / PART);
+                const partsList = [];
+                for (let pos = 0; pos < fullText.length;) {
+                    let end = Math.min(pos + PART, fullText.length);
+                    if (end < fullText.length) {
+                        const nl = fullText.lastIndexOf('\n', end), dot = fullText.lastIndexOf('. ', end);
+                        const cut = Math.max(nl, dot + 1);
+                        if (cut > pos + PART * 0.5) end = cut;
+                    }
+                    partsList.push(fullText.slice(pos, end).trim());
+                    pos = end;
+                }
+                const total = partsList.length;
                 const stamp = Date.now();
                 for (let n = 0; n < total; n++) {
                     const newDoc = {
                         id: 'doc-' + stamp + '-' + n,
                         pillar: pillar,
                         title: total > 1 ? `${title} (part ${n + 1}/${total})` : title,
-                        content: fullText.slice(n * PART, (n + 1) * PART),
+                        content: partsList[n],
                         source: file.name
                     };
                     window.documents.unshift(newDoc);
